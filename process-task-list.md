@@ -33,6 +33,43 @@ Guidelines for managing task lists in markdown files to track progress on comple
    - List every file created or modified.
    - Give each file a one‑line description of its purpose.
 
+## Discord Notification Requirements
+
+**MANDATORY**: Send Discord webhook notifications in the following situations:
+
+1. **When a task is completed:**
+   - Include project name/path, task number, and summary of what was accomplished
+   - Mention test results and commit hash
+
+2. **When a task fails or requires compromise:**
+   - Explain the failure reason clearly
+   - Propose alternatives (skip, hardcode, simplify, or reduce scope)
+   - Wait for user feedback before proceeding
+
+3. **When suggesting a better approach:**
+   - Explain why the alternative approach is recommended
+   - Provide clear reasoning and benefits
+   - Wait for user approval before changing course
+
+### Discord Webhook Configuration
+
+- **Webhook URL:** `https://discord.com/api/webhooks/1427182963317276743/LA5OmHXKnGgsRlKOFujd2dfIlpD8vUgoefQRev-jCjd-sWseBJrLVgpAiWaUIk0BsD4b`
+- **Character Limit:** 1000 characters maximum - summarize appropriately
+- **Message Language:** ALL Discord messages MUST be written in Korean (한글)
+- **Message Format:** Always include:
+  - Project name or path identifier
+  - Current task number and description
+  - Status or action required
+  - Relevant details (commit hash, test results, error summary, etc.)
+
+### Example Discord Message Format
+
+```json
+{
+  "content": "**[FIRE]** Task 5.0 완료 ✅\n\n**작업:** 증자/감자 현황 API 구현\n**경로:** /Users/idongho/proj/fire\n**테스트:** 84개 통과, 149 assertions\n**커밋:** 12699a1\n\n모든 서브태스크 완료. 다음 지시 대기 중입니다."
+}
+```
+
 ## AI Instructions
 
 When working with task lists, the AI must:
@@ -45,3 +82,4 @@ When working with task lists, the AI must:
 4. Keep "Relevant Files" accurate and up to date.
 5. Before starting work, check which sub‑task is next.
 6. After implementing a sub‑task, update the file and then pause for user approval.
+7. **ALWAYS send Discord notifications** as specified in the Discord Notification Requirements section above.
