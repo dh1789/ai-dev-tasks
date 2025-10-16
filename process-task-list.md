@@ -4,10 +4,15 @@ Guidelines for managing task lists in markdown files to track progress on comple
 
 ## Task Implementation
 - **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y"
-- **Completion protocol:**  
+- **Test Execution Policy:**
+  - **NEVER skip tests**: All tests must be executed completely, even if they take time
+  - **Timeout setting**: Set test timeout to 10 minutes (600000ms) to allow sufficient execution time
+  - **Wait for completion**: Always wait for full test suite to complete before proceeding
+  - **No shortcuts**: Do not use grep, tail, or other methods to skip test execution
+- **Completion protocol:**
   1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
   2. If **all** subtasks underneath a parent task are now `[x]`, follow this sequence:
-    - **First**: Run the full test suite (`pytest`, `npm test`, `bin/rails test`, etc.)
+    - **First**: Run the full test suite (`pytest`, `npm test`, `bin/rails test`, etc.) with 10-minute timeout
     - **Only if all tests pass**: Stage changes (`git add .`)
     - **Clean up**: Remove any temporary files and temporary code before committing
     - **Commit**: Use a descriptive commit message that:
