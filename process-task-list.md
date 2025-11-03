@@ -3,7 +3,7 @@
 Guidelines for managing task lists in markdown files to track progress on completing a PRD
 
 ## Task Implementation
-- **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y"
+- **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y". **Use the AskUserQuestion tool** to present options and gather user decisions efficiently through Claude Code's interactive interface.
 - **Test Execution Policy:**
   - **NEVER skip tests**: All tests must be executed completely, even if they take time
   - **Timeout setting**: Set test timeout to 10 minutes (600000ms) to allow sufficient execution time
@@ -88,3 +88,4 @@ When working with task lists, the AI must:
 5. Before starting work, check which sub‑task is next.
 6. After implementing a sub‑task, update the file and then pause for user approval.
 7. **ALWAYS send Discord notifications** as specified in the Discord Notification Requirements section above.
+8. **Context Preservation:** If context becomes abbreviated during communication (e.g., when reporting in English), reload the task list file, the PRD file, and any other referenced documents using the Read tool before continuing work to ensure full context is maintained and no information is lost.
