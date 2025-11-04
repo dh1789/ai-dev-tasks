@@ -69,6 +69,32 @@ The generated task list _must_ follow this structure:
 - [ ] 3.0 Parent Task Title (may not require sub-tasks if purely structural or configuration)
 ```
 
+## Language Policy
+
+**IMPORTANT:** All task list content must be written in Korean (한글) to ensure clarity and accessibility for junior developers implementing the features.
+
+### Language Requirements:
+
+1. **Task Content Language:**
+   - All parent task titles and descriptions must be written in Korean
+   - All sub-task descriptions must be written in Korean
+   - File descriptions in the "Relevant Files" section must be written in Korean
+   - All content in the "Notes" section must be written in Korean
+
+2. **Technical Terms:**
+   - Common technical terms and abbreviations used in Korean development context may remain in English (e.g., API, HTTP, component names, function names, file extensions)
+   - File paths and code identifiers remain in their original form
+   - Framework and library names remain in English
+   - When in doubt, use the term as it would naturally appear in Korean technical documentation
+
+3. **User Communication:**
+   - All progress reports and summaries to the user must be in Korean
+   - When reporting to users, include information about any markdown files that were created, modified, or deleted during the task generation process
+
+### Example:
+- ✅ Correct: "- [ ] 1.1 사용자 인증 API endpoint 구현 (`/api/auth/login`)"
+- ❌ Incorrect: "- [ ] 1.1 Implement user authentication API endpoint"
+
 ## Interaction Model
 
 The process explicitly requires a pause after generating parent tasks to get user confirmation ("Go") before proceeding to generate the detailed sub-tasks. This ensures the high-level plan aligns with user expectations before diving into details.

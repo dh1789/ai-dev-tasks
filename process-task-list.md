@@ -89,6 +89,60 @@ Guidelines for managing task lists in markdown files to track progress on comple
 }
 ```
 
+## Language Policy
+
+**IMPORTANT:** All code comments, documentation, and user communications must be written in Korean (한글) to maintain consistency and accessibility for the development team.
+
+### Language Requirements:
+
+1. **Code Comments:**
+   - All comments in implementation code must be written in Korean
+   - Function and class documentation must use Korean
+   - Inline explanations and TODO comments must be in Korean
+
+2. **User Communications:**
+   - All progress reports and summaries to the user must be in Korean
+   - Status updates and completion notifications must be in Korean
+   - When reporting to users, **always include information about any markdown files that were created, modified, or deleted** during the implementation
+
+3. **Commit Messages:**
+   - Follow conventional commit format in English (e.g., `feat:`, `fix:`, `refactor:`)
+   - The commit summary line should be in English for international compatibility
+   - Detailed commit body descriptions may include Korean explanations when needed
+
+4. **Discord Notifications:**
+   - As specified in the Discord Notification Requirements section, all Discord messages must be in Korean
+   - This extends to all user-facing communications
+
+5. **Technical Terms:**
+   - Common technical terms and abbreviations used in Korean development context may remain in English (e.g., API, HTTP, JSON, function names, variable names)
+   - Programming language keywords and syntax remain in their original form
+   - When in doubt, use the term as it would naturally appear in Korean technical documentation
+
+### Examples:
+
+**Code Comments:**
+```javascript
+// ✅ Correct:
+// 사용자 인증 토큰을 검증합니다
+function validateToken(token) { ... }
+
+// ❌ Incorrect:
+// Validates user authentication token
+function validateToken(token) { ... }
+```
+
+**User Report:**
+```
+✅ Correct:
+"Task 1.1 완료: 사용자 프로필 API 구현이 완료되었습니다.
+수정된 파일: api/profile.js, api/profile.test.js
+생성된 문서: docs/api-profile.md"
+
+❌ Incorrect:
+"Task 1.1 completed: User profile API implementation finished."
+```
+
 ## AI Instructions
 
 When working with task lists, the AI must:
@@ -102,4 +156,9 @@ When working with task lists, the AI must:
 5. Before starting work, check which sub‑task is next.
 6. After implementing a sub‑task, update the file and then pause for user approval.
 7. **ALWAYS send Discord notifications** as specified in the Discord Notification Requirements section above.
-8. **Context Preservation:** If context becomes abbreviated during communication (e.g., when reporting in English), reload the task list file, the PRD file, and any other referenced documents using the Read tool before continuing work to ensure full context is maintained and no information is lost.
+8. **Follow the Language Policy** as specified in the Language Policy section above:
+   - Write all code comments and documentation in Korean
+   - Provide all user reports and summaries in Korean
+   - Include markdown file change information when reporting to users
+   - Use conventional commit format in English for git commits
+9. **Context Preservation:** If context becomes abbreviated during communication (e.g., when reporting in English), reload the task list file, the PRD file, and any other referenced documents using the Read tool before continuing work to ensure full context is maintained and no information is lost.

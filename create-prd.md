@@ -59,6 +59,30 @@ Assume the primary reader of the PRD is a **junior developer**. Therefore, requi
 *   **Location:** `/tasks/`
 *   **Filename:** `[n]-prd-[feature-name].md`
 
+## Language Policy
+
+**IMPORTANT:** All PRD content must be written in Korean (한글) to ensure accessibility for the target audience of junior developers.
+
+### Language Requirements:
+
+1. **PRD Content Language:**
+   - All section headings, descriptions, requirements, and narratives must be written in Korean
+   - User stories, functional requirements, and all descriptive text must use Korean
+   - Code examples and comments within the PRD must include Korean explanations
+
+2. **Technical Terms:**
+   - Common technical terms and abbreviations used in Korean development context may remain in English (e.g., API, HTTP, REST, JSON, URL, framework names, library names)
+   - Programming language keywords and syntax remain in their original form
+   - When in doubt, use the term as it would naturally appear in Korean technical documentation
+
+3. **User Communication:**
+   - All summaries and reports to the user must be in Korean
+   - When reporting to users, include information about any markdown files that were created, modified, or deleted during the process
+
+### Example:
+- ✅ Correct: "사용자는 프로필 사진을 업로드할 수 있어야 합니다. (API endpoint: `/upload`)"
+- ❌ Incorrect: "User must be able to upload profile picture."
+
 ## Final instructions
 
 1. Do NOT start implementing the PRD
