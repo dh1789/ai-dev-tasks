@@ -4,11 +4,25 @@ Guidelines for managing task lists in markdown files to track progress on comple
 
 ## Task Implementation
 - **One sub-task at a time:** Do **NOT** start the next sub‑task until you ask the user for permission and they say "yes" or "y". **Use the AskUserQuestion tool** to present options and gather user decisions efficiently through Claude Code's interactive interface.
-- **Test Execution Policy:**
-  - **NEVER skip tests**: All tests must be executed completely, even if they take time
-  - **Timeout setting**: Set test timeout to 10 minutes (600000ms) to allow sufficient execution time
-  - **Wait for completion**: Always wait for full test suite to complete before proceeding
-  - **No shortcuts**: Do not use grep, tail, or other methods to skip test execution
+- **Test Implementation and Execution Policy:**
+  - **Unit Test Requirements:**
+    - All implemented classes and functions must have corresponding unit tests using the programming language's native testing framework (e.g., Jest for JavaScript, pytest for Python, JUnit for Java).
+    - Each unit test suite must include a minimum of 3 test cases covering:
+      - **Happy Path:** Verify the most common, expected scenarios work correctly.
+      - **Boundary Conditions:** Test edge cases including minimum values, maximum values, empty inputs, null values.
+      - **Exception Cases:** Validate proper handling of invalid inputs and error conditions.
+      - **Side Effects:** Ensure test independence and no impact on global state or external systems.
+    - Unit tests must be written during implementation, not as an afterthought.
+  - **System Test Requirements:**
+    - Based on the PRD user stories, create end-to-end system tests that validate complete workflows.
+    - Test at least 2 realistic user scenarios representing normal feature usage.
+    - **Must use real data for validation** - no hardcoded values or dummy data allowed.
+    - System tests verify the integration of all components from start to finish.
+  - **Test Execution Policy:**
+    - **NEVER skip tests**: All tests must be executed completely, even if they take time
+    - **Timeout setting**: Set test timeout to 10 minutes (600000ms) to allow sufficient execution time
+    - **Wait for completion**: Always wait for full test suite to complete before proceeding
+    - **No shortcuts**: Do not use grep, tail, or other methods to skip test execution
 - **Completion protocol:**
   1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
   2. If **all** subtasks underneath a parent task are now `[x]`, follow this sequence:
