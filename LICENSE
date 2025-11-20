@@ -199,3 +199,15 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+---
+
+THIRD-PARTY COMPONENTS
+
+This project includes modified content from:
+
+- docs/tdd.md
+  Original: BPlusTree3/rust/docs/CLAUDE.md
+  Copyright (c) Kent Beck
+  Licensed under MIT License
+  Source: https://github.com/KentBeck/BPlusTree3
