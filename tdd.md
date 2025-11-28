@@ -73,3 +73,10 @@ When approaching a new feature:
 Follow this process precisely, always prioritizing clean, well-tested code over quick implementation.
 
 Always write one test at a time, make it run, then improve structure. Always run all the tests (except long-running tests) each time.
+
+# PRODUCTION INTEGRATION VERIFICATION
+
+- All implemented features MUST be verified to be reflected in the actual production source code and called at the source level.
+- After implementation is complete, always verify that the new code is properly integrated and invoked from the production codebase.
+- It is a frequent problem that implementations are completed but never actually integrated into the production source, rendering them unused.
+- Before marking any feature as complete, trace the call path from the production entry points to confirm the new functionality is reachable.
