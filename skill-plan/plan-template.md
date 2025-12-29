@@ -99,9 +99,9 @@
 **C++ 프로젝트:**
 - **테스트 파일 위치**: `test/unit/`, `test/integration/`
 - **파일명 규칙**: `*_test.cpp`
-- **테스트 실행**: `docker exec cpp-dev-env bash -c "cd /workspace/build && ctest --output-on-failure"`
-- **특정 테스트**: `ctest -R TestName` (정규식 매칭)
-- **상세 출력**: `ctest --verbose`
+- **테스트 실행**: `docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ./test/unit/*_test --gtest_output=xml"`
+- **특정 테스트**: `./test/unit/my_test --gtest_filter=TestName*` (Google Test 필터)
+- **상세 출력**: `./test/unit/*_test --gtest_verbose`
 
 **Python 프로젝트:**
 - **테스트 파일 위치**: `tests/` 디렉토리
@@ -215,9 +215,9 @@
 
 **검증 명령어 (C++):**
 ```bash
-# Docker 컨테이너 내부에서 실행
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-quality-check.sh"
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-memory-check.sh all"
+# gcc15.1_22.04 인스턴스 내부에서 실행
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-quality-check.sh"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-memory-check.sh all"
 ```
 
 ---
@@ -289,7 +289,7 @@ npm test  # 또는 pnpm test, yarn test
 
 *C++:*
 ```bash
-docker exec cpp-dev-env bash -c "cd /workspace/build && ninja && ctest --output-on-failure"
+docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ninja && ./test/unit/*_test"
 ```
 
 **품질 검사 (언어별):**

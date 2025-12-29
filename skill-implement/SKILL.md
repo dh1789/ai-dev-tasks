@@ -182,7 +182,7 @@ docs/features/YYYY-MM-DD-feature-name/
 - `npm install` (또는 `pnpm install`, `yarn install`) 실행
 
 *C++ 프로젝트:*
-- Docker 컨테이너 상태 확인: `docker ps | grep cpp-dev-env`
+- Docker 컨테이너 상태 확인: `docker ps | grep gcc15.1_22.04`
 - 실행 중이 아니면: `./scripts/docker-setup.sh start`
 
 ### 4단계: Phase별 자동 실행
@@ -232,11 +232,11 @@ npm test  # 또는 pnpm test, yarn test
 
 **C++:**
 ```bash
-docker exec cpp-dev-env bash -c "
+docker exec gcc15.1_22.04 bash -c "
   cd /workspace/build
   ninja clean
   ninja
-  ctest --output-on-failure --timeout 600
+  ./test/unit/*_test
 "
 ```
 
@@ -271,8 +271,8 @@ docker exec cpp-dev-env bash -c "
 
 **C++:**
 ```bash
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-quality-check.sh build 80"
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-memory-check.sh build all"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-quality-check.sh build 80"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-memory-check.sh build all"
 ```
 **검사 항목:**
 - ✅ 빌드 성공
@@ -486,16 +486,16 @@ npm test
 **C++ 프로젝트 (Docker 컨테이너):**
 ```bash
 # 빌드
-docker exec cpp-dev-env bash -c "cd /workspace/build && ninja"
+docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ninja"
 
-# 테스트
-docker exec cpp-dev-env bash -c "cd /workspace/build && ctest --output-on-failure --timeout 600"
+# 테스트 (Google Test 실행)
+docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ./test/unit/*_test"
 
 # 품질 검사
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-quality-check.sh"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-quality-check.sh"
 
 # 메모리 검사
-docker exec cpp-dev-env bash -c "cd /workspace && ./scripts/cpp-memory-check.sh build all"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-memory-check.sh build all"
 ```
 
 **호스트에서 공통 작업 (모든 언어):**
@@ -738,7 +738,7 @@ AI: PLAN.md 로드 중...
     예상 시간: 12시간
 
     Docker 컨테이너 확인 중...
-    ✅ cpp-dev-env 실행 중
+    ✅ gcc15.1_22.04 실행 중
 
     PROGRESS.md 초기화 완료
 

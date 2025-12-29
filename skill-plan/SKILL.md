@@ -723,11 +723,11 @@ skill-plan/plan-template.md 참조
 
 **C++ 프로젝트:**
 - **실행 위치**: Docker 컨테이너 (필수)
-- **컨테이너**: cpp-dev-env (Ubuntu 22.04 + GCC 15.1.0)
-- **빌드/테스트**: 모두 컨테이너 내부 (`docker exec cpp-dev-env bash -c "..."`)
+- **컨테이너**: gcc15.1_22.04 (Ubuntu 22.04 + GCC 15.1.0)
+- **빌드/테스트**: 모두 gcc15.1_22.04 인스턴스 내부에서 컴파일 및 디버깅 (`docker exec gcc15.1_22.04 bash -c "..."`)
 - **파일 편집**: 호스트에서 가능 (볼륨 마운트)
 - **Git 작업**: 호스트에서 수행
-- **품질 검사**: `scripts/cpp-quality-check.sh` (컨테이너 내부)
+- **품질 검사**: `scripts/cpp-quality-check.sh` (gcc15.1_22.04 인스턴스 내부)
 
 **Python 프로젝트:**
 - **실행 위치**: 로컬 (호스트)
