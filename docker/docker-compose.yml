@@ -1,0 +1,95 @@
+# Docker Compose configuration for C++ Development with AI Dev Tasks
+version: '3.8'
+
+services:
+  cpp-dev:
+    build:
+      context: ..
+      dockerfile: Dockerfile.gcc15.1_22.04
+
+    container_name: cpp-dev-env
+
+    # Keep container running
+    command: tail -f /dev/null
+
+    # Volume mounts
+    volumes:
+      # Mount project directory to /workspace
+      - ..:/workspace
+
+      # ccache directory for faster rebuilds (persistent)
+      - ccache-data:/workspace/.ccache
+
+      # Optional: Mount SSH keys for git operations
+      # - ~/.ssh:/root/.ssh:ro
+
+      # Optional: Mount git config
+      # - ~/.gitconfig:/root/.gitconfig:ro
+
+    # Working directory
+    working_dir: /workspace
+
+    # Environment variables
+    environment:
+      # Slack webhook for notifications
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+
+      # ccache configuration
+      - CCACHE_DIR=/workspace/.ccache
+      - CCACHE_MAXSIZE=10G
+      - CCACHE_COMPRESS=true
+      - CCACHE_COMPRESSLEVEL=6
+
+      # Compiler settings
+      - CC=ccache gcc
+      - CXX=ccache g++
+      - CMAKE_GENERATOR=Ninja
+
+      # Build parallelism
+      - MAKEFLAGS=-j$(nproc)
+
+      # Locale settings
+      - LANG=ko_KR.UTF-8
+      - LC_ALL=ko_KR.UTF-8
+
+    # Optional: Expose ports for debugging/services
+    ports:
+      - "8080:8080"  # Application port
+      - "9090:9090"  # Debug port
+
+    # Security options for Valgrind and perf
+    cap_add:
+      - SYS_PTRACE  # Required for debugging tools
+      - SYS_ADMIN   # Required for perf
+
+    security_opt:
+      - seccomp:unconfined  # Required for some debugging tools
+
+    # Resource limits (optional - adjust as needed)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '8'
+    #       memory: 16G
+    #     reservations:
+    #       cpus: '4'
+    #       memory: 8G
+
+    # Network mode
+    network_mode: bridge
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Interactive terminal
+    stdin_open: true
+    tty: true
+
+volumes:
+  # Persistent ccache data
+  ccache-data:
+    driver: local
+
+networks:
+  default:
+    name: cpp-dev-network

@@ -1,0 +1,275 @@
+# GCC 15.1 with Ubuntu 22.04 base image for C++ development
+FROM ubuntu:22.04
+
+LABEL org.opencontainers.image.ref.name=ubuntu
+LABEL org.opencontainers.image.version=22.04
+
+# modify apt sources to use a faster mirror
+RUN sed -i.bak 's|http[s]\?://[a-zA-Z0-9./-]\+/ubuntu|http://mirror.kakao.com/ubuntu|g' /etc/apt/sources.list
+
+# Install base build dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    zsh \
+    net-tools \
+    build-essential \
+    dpkg-dev \
+    gnupg \
+    g++ \
+    autoconf \
+    bison \
+    flex \
+    libmpc-dev \
+    libgmp-dev \
+    libmpfr-dev \
+    texinfo \
+    git \
+    wget \
+    openssh-client \
+    vim \
+    libssl-dev \
+    libmariadb-dev \
+    bash-completion \
+    libnuma-dev \
+    ninja-build \
+    abigail-tools \
+    libtool \
+    libnetfilter-queue-dev \
+    libnl-3-dev \
+    autoconf \
+    automake \
+    gdb \
+    && rm -r /var/lib/apt/lists/*
+
+# Install Node.js 20.x
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+RUN apt-get update && apt-get remove -y libnode-dev nodejs-doc nodejs && apt-get install -y \
+    nodejs \
+    && rm -r /var/lib/apt/lists/*
+
+# Install Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install Oh My Zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Set working directory
+WORKDIR /usr/src
+COPY ./sources .
+
+
+# Build GCC 15.1 from source
+WORKDIR /usr/src/gcc-15.1.0
+RUN ./configure --enable-languages=c,c++ --disable-multilib --disable-bootstrap && \
+    make -j$(nproc) && \
+    make install-strip && \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
+# Set PATH for GCC
+ENV PATH="/usr/local/bin:${PATH}"
+
+# Configure library paths and verify libstdc++ ABI compatibility
+RUN set -ex; \
+    { echo '/usr/local/lib64'; echo '/usr/local/lib'; } > /etc/ld.so.conf.d/000-local-lib.conf; \
+    ldconfig -v; \
+    deb="$(readlink -ve /usr/lib/*/libstdc++.so* | head -1)"; \
+    gcc="$(readlink -ve /usr/local/lib*/libstdc++.so | head -1)"; \
+    LD_PRELOAD="$deb" abidiff --no-added-syms "$deb" "$gcc"
+
+# Set GCC as default compiler
+RUN set -ex; \
+    dpkg-divert --divert /usr/bin/gcc.orig --rename /usr/bin/gcc; \
+    dpkg-divert --divert /usr/bin/g++.orig --rename /usr/bin/g++; \
+    dpkg-divert --divert /usr/bin/gfortran.orig --rename /usr/bin/gfortran; \
+    update-alternatives --install /usr/bin/cc cc /usr/local/bin/gcc 999
+
+# Build and install CMake
+WORKDIR /usr/src/cmake-4.0.0
+RUN ./bootstrap --parallel=10 && \
+    make -j10 && \
+    make install && \
+    echo 'cmake -G Ninja ..' > /bin/cnin && chmod +x /bin/cnin && \
+    echo 'time ninja' > /bin/rnin && chmod +x /bin/rnin && \
+    echo 'time make -j11' > /bin/rmake && chmod +x /bin/rmake
+
+
+# Copy and build C++ libraries
+# Build userspace-rcu, fmt, oneTBB, asio, and liburing
+WORKDIR /usr/src/fmt-11.2.0
+RUN mkdir build && \
+    cd build && \
+    cmake -DFMT_TEST=OFF .. && \
+    make -j10 && \
+    make install
+
+WORKDIR /usr/src/userspace-rcu-0.15.3
+RUN ./bootstrap && \
+    ./configure && \
+    make -j10 && \
+    make install
+
+WORKDIR /usr/src/oneTBB-2022.2.0
+RUN mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_CXX_STANDARD=23 -DTBB_TEST=OFF -DTBB_STRICT=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS=-D__TBB_DYNAMIC_LOAD_ENABLED=0 && \
+    make -j10 && \
+    make install
+
+WORKDIR /usr/src/asio-asio-1-36-0
+RUN cp asio/include/asio.hpp /usr/local/include && \
+    rm -rf /usr/local/include/asio && \
+    mv -f asio/include/asio/ /usr/local/include
+
+WORKDIR /usr/src/liburing-liburing-2.12
+RUN ./configure && \
+    make -j10 library && \
+    make install
+
+# Build and install GoogleTest 1.14.0
+WORKDIR /usr/src/googletest-1.14.0
+RUN mkdir build && \
+    cd build && \
+    cmake .. -DCMAKE_CXX_STANDARD=23 -DBUILD_GMOCK=ON -DGTEST_CREATE_SHARED_LIBRARY=OFF && \
+    make -j10 && \
+    make install && \
+    ldconfig
+
+# Install Coverity Analysis 2025.3.0
+WORKDIR /usr/src/
+RUN bash ./cov-analysis-linux64-2025.3.0.sh -q --license.region=5 --license.type.choice=0 --license.agreement="agree" --license.cov.path=/usr/src/license.dat --installation.dir=/usr/local/
+
+
+WORKDIR /usr/src/fmt-9.1.0/
+RUN mkdir build && \
+    cd build && \
+    cmake -DFMT_TEST=OFF -DCMAKE_INSTALL_PREFIX=/usr/local/fmt-9.1.0 .. && \
+    make -j10 && \
+    make install
+
+RUN rm -rf /usr/src/*
+
+# Set zsh as default shell
+RUN chsh -s $(which zsh) root
+
+RUN apt-get update && apt-get install -y locales locales-all \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. 로케일 활성화 (ko_KR.UTF-8)
+RUN locale-gen ko_KR.UTF-8
+
+# 3. 환경 변수 설정
+ENV LANG=ko_KR.UTF-8
+ENV LC_ALL=ko_KR.UTF-8
+
+RUN apt-get update && apt-get install -y python3-pip tree netplan.io  \
+    && rm -rf /var/lib/apt/lists/*
+RUN npm install -g @bifrost_inc/superclaude
+
+# Install Black Duck C/C++ CLI
+RUN pip install blackduck-c-cpp
+
+###############################################################################
+# Install Quality Assurance & Testing Tools for AI Dev Tasks
+###############################################################################
+
+# Install ccache for build speed optimization
+RUN apt-get update && apt-get install -y \
+    ccache \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Clang tools for static analysis and formatting
+RUN apt-get update && apt-get install -y \
+    clang \
+    clang-tidy \
+    clang-format \
+    clang-tools \
+    llvm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install cppcheck for additional static analysis
+RUN apt-get update && apt-get install -y \
+    cppcheck \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Valgrind for memory checking
+RUN apt-get update && apt-get install -y \
+    valgrind \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install lcov for code coverage reporting
+RUN apt-get update && apt-get install -y \
+    lcov \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install perf for performance profiling
+RUN apt-get update && apt-get install -y \
+    linux-tools-generic \
+    linux-tools-common \
+    && rm -rf /var/lib/apt/lists/* || true
+
+# Build and install include-what-you-use from source
+WORKDIR /tmp/iwyu-build
+RUN git clone https://github.com/include-what-you-use/include-what-you-use.git . && \
+    git checkout clang_14 && \
+    mkdir build && cd build && \
+    cmake -G "Unix Makefiles" -DCMAKE_PREFIX_PATH=/usr/lib/llvm-14 .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && rm -rf /tmp/iwyu-build
+
+# Build and install Google Benchmark from source
+WORKDIR /tmp/benchmark-build
+RUN git clone https://github.com/google/benchmark.git . && \
+    git checkout v1.9.1 && \
+    cmake -E make_directory "build" && \
+    cmake -E chdir "build" cmake \
+        -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBENCHMARK_ENABLE_TESTING=OFF \
+        -DCMAKE_CXX_STANDARD=23 \
+        .. && \
+    cmake --build "build" --config Release --target install -j$(nproc) && \
+    ldconfig && \
+    cd / && rm -rf /tmp/benchmark-build
+
+# Configure ccache
+ENV PATH="/usr/lib/ccache:${PATH}"
+ENV CCACHE_DIR="/workspace/.ccache"
+ENV CCACHE_MAXSIZE="10G"
+ENV CCACHE_COMPRESS="true"
+ENV CCACHE_COMPRESSLEVEL="6"
+
+# Set compiler to use ccache
+ENV CC="ccache gcc"
+ENV CXX="ccache g++"
+
+###############################################################################
+# End of Quality Assurance Tools Installation
+###############################################################################
+
+# MAKEFLAGS 설정
+ENV MAKEFLAGS="-j8"
+
+# 기존 패키지 업데이트 및 glibc 최신화
+RUN apt-get update && \
+    apt-get upgrade -y libc6 libc6-dev libc-bin && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# mysql-client, killall 추가
+RUN apt-get update && \
+    apt-get upgrade -y mysql-client psmisc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+###############################################################################
+# root 를 volume로 지정할  경우를 대비해서 백업 폴더 생성
+RUN cp -frp /root /root_backup
+
+
+WORKDIR /mnt
+
+# Keep the container running
+CMD ["tail", "-f", "/dev/null"]

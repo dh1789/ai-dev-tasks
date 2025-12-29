@@ -1,0 +1,77 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build artifacts
+build/
+bin/
+obj/
+out/
+dist/
+*.o
+*.so
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Cache directories
+.ccache/
+.cache/
+__pycache__/
+*.pyc
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation (already in container or generated)
+docs/
+*.md
+!README.md
+
+# Test outputs
+coverage/
+htmlcov/
+.coverage
+*.lcov
+*.gcov
+*.gcda
+*.gcno
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log
+
+# Node modules
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python virtual environments
+venv/
+env/
+.venv/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Project specific
+ai-dev-tasks/
+skill-plan/
+skill-implement/
+scripts/
