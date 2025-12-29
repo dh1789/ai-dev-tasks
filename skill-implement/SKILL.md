@@ -168,7 +168,7 @@ docs/features/YYYY-MM-DD-feature-name/
 
 **프로젝트 타입 자동 감지:**
 ```bash
-./scripts/detect-project-type.sh
+~/.claude/skills/ai-dev-tasks/scripts/detect-project-type.sh
 ```
 
 **감지 결과에 따라 환경 확인:**
@@ -248,7 +248,7 @@ docker exec gcc15.1_22.04 bash -c "
 
 **Ruby/Rails:**
 ```bash
-./scripts/ruby-quality-check.sh
+~/.claude/skills/ai-dev-tasks/scripts/ruby-quality-check.sh
 ```
 **검사 항목:**
 - ✅ 모든 테스트 통과 (100%)
@@ -259,7 +259,7 @@ docker exec gcc15.1_22.04 bash -c "
 
 **Node.js/TypeScript:**
 ```bash
-./scripts/node-quality-check.sh
+~/.claude/skills/ai-dev-tasks/scripts/node-quality-check.sh
 ```
 **검사 항목:**
 - ✅ 모든 테스트 통과 (100%)
@@ -333,7 +333,7 @@ Phase X/Total completed"
 #### G. Slack 알림
 
 ```bash
-./scripts/slack-notify.sh "
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "
 **[프로젝트명]** Phase X 완료 ✅
 
 **기능:** [feature-name]
@@ -360,7 +360,7 @@ Phase X/Total completed"
 3. **Slack 알림 전송:**
 
 ```bash
-./scripts/slack-notify.sh "
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "
 🚨 **[프로젝트명]** 중대한 문제 발생
 
 **기능:** [feature-name]
@@ -403,7 +403,7 @@ Phase X/Total completed"
 **모든 Phase 완료시:**
 
 ```bash
-./scripts/slack-notify.sh "
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "
 🎉 **[프로젝트명]** 기능 구현 완료!
 
 **기능:** [feature-name]
@@ -468,7 +468,7 @@ bundle install
 bundle exec rails test  # 또는 bundle exec rake test
 
 # 품질 검사
-./scripts/ruby-quality-check.sh
+~/.claude/skills/ai-dev-tasks/scripts/ruby-quality-check.sh
 ```
 
 **Node.js/TypeScript 프로젝트 (로컬 실행):**
@@ -480,7 +480,7 @@ npm install  # 또는 pnpm install, yarn install
 npm test
 
 # 품질 검사
-./scripts/node-quality-check.sh
+~/.claude/skills/ai-dev-tasks/scripts/node-quality-check.sh
 ```
 
 **C++ 프로젝트 (Docker 컨테이너):**
@@ -625,12 +625,12 @@ def test_payment_processing():
 ## 지원 파일
 
 - `progress-template.md`: PROGRESS.md 생성 템플릿
-- `../scripts/detect-project-type.sh`: 프로젝트 타입 자동 감지
-- `../scripts/ruby-quality-check.sh`: Ruby/Rails 품질 검사
-- `../scripts/node-quality-check.sh`: Node.js/TypeScript 품질 검사
-- `../scripts/cpp-quality-check.sh`: C++ 품질 검사
-- `../scripts/cpp-memory-check.sh`: C++ 메모리 검사
-- `../scripts/slack-notify.sh`: Slack 알림
+- `~/.claude/skills/ai-dev-tasks/scripts/detect-project-type.sh`: 프로젝트 타입 자동 감지
+- `~/.claude/skills/ai-dev-tasks/scripts/ruby-quality-check.sh`: Ruby/Rails 품질 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/node-quality-check.sh`: Node.js/TypeScript 품질 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/cpp-quality-check.sh`: C++ 품질 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/cpp-memory-check.sh`: C++ 메모리 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh`: Slack 알림
 
 ## 사용 예제
 

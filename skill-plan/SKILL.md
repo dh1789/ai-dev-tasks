@@ -891,7 +891,7 @@ AI: ✅ docs/features/2025-01-29-oauth2-authentication/PLAN.md 생성 완료
 
 **사용법**:
 ```bash
-./scripts/slack-notify.sh "메시지 내용" [status]
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "메시지 내용" [status]
 ```
 
 **상태 옵션**:
@@ -903,21 +903,21 @@ AI: ✅ docs/features/2025-01-29-oauth2-authentication/PLAN.md 생성 완료
 **예제**:
 ```bash
 # 계획 완료
-./scripts/slack-notify.sh "계획 수립 완료 - jwt-authentication, 5개 Phase, 예상 12시간" "success"
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "계획 수립 완료 - jwt-authentication, 5개 Phase, 예상 12시간" "success"
 
 # 계획 실패
-./scripts/slack-notify.sh "계획 수립 실패 - 요구사항 불명확. 추가 정보 필요" "error"
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "계획 수립 실패 - 요구사항 불명확. 추가 정보 필요" "error"
 
 # 더 나은 접근 방식 제안
-./scripts/slack-notify.sh "더 나은 방법 제안 - Phase 분리로 위험 감소" "info"
+~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "더 나은 방법 제안 - Phase 분리로 위험 감소" "info"
 ```
 
 ## 지원 파일
 
 - `plan-template.md`: PLAN.md 생성 템플릿 (언어별)
-- `../scripts/detect-project-type.sh`: 프로젝트 타입 자동 감지
-- `../scripts/slack-notify.sh`: Slack 알림 (계획 완료시)
-- `../scripts/ruby-quality-check.sh`: Ruby/Rails 품질 검사
-- `../scripts/node-quality-check.sh`: Node.js/TypeScript 품질 검사
-- `../scripts/cpp-quality-check.sh`: C++ 품질 검사 (Docker)
-- `../scripts/cpp-memory-check.sh`: C++ 메모리 검사 (Docker)
+- `~/.claude/skills/ai-dev-tasks/scripts/detect-project-type.sh`: 프로젝트 타입 자동 감지
+- `~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh`: Slack 알림 (계획 완료시)
+- `~/.claude/skills/ai-dev-tasks/scripts/ruby-quality-check.sh`: Ruby/Rails 품질 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/node-quality-check.sh`: Node.js/TypeScript 품질 검사
+- `~/.claude/skills/ai-dev-tasks/scripts/cpp-quality-check.sh`: C++ 품질 검사 (Docker)
+- `~/.claude/skills/ai-dev-tasks/scripts/cpp-memory-check.sh`: C++ 메모리 검사 (Docker)
