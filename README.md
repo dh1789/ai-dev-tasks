@@ -94,6 +94,39 @@ ai-dev-tasks/
 
 ### 계정 전체 설정 (권장)
 
+#### 방법 1: Makefile 사용 (가장 간편)
+
+```bash
+# 1. ai-dev-tasks 클론
+cd ~
+git clone https://github.com/YOUR_USERNAME/ai-dev-tasks.git
+cd ai-dev-tasks
+
+# 2. 글로벌 설치 (필수)
+make install
+
+# 설치되는 항목:
+# - ~/.claude/skills/plan → skill-plan/
+# - ~/.claude/skills/implement → skill-implement/
+# - ~/.claude/skills/ai-dev-tasks → 전체 디렉토리 (scripts, docker 등)
+
+# 3. C++ 프로젝트만 추가 설정 (Ruby/Node.js는 생략)
+make install-project PROJECT_PATH=~/your-cpp-project
+
+# 4. 설치 확인
+make check-global
+```
+
+**Ruby/Rails 및 Node.js/TypeScript 프로젝트:**
+- 프로젝트별 설치 불필요!
+- 스크립트는 `~/.claude/skills/ai-dev-tasks/scripts/`에서 직접 실행
+
+**C++ 프로젝트:**
+- `make install-project`로 docker/ 및 Dockerfile.gcc15.1_22.04 링크 생성
+- 프로젝트 루트에서 docker-compose 실행 가능
+
+#### 방법 2: 수동 설정
+
 ```bash
 # 1. ai-dev-tasks 클론
 cd ~
@@ -102,20 +135,26 @@ git clone https://github.com/YOUR_USERNAME/ai-dev-tasks.git
 # 2. 글로벌 스킬 디렉토리 생성
 mkdir -p ~/.claude/skills
 
-# 3. 스킬 링크
+# 3. 스킬 및 리소스 링크
 ln -s ~/ai-dev-tasks/skill-plan ~/.claude/skills/plan
 ln -s ~/ai-dev-tasks/skill-implement ~/.claude/skills/implement
+ln -s ~/ai-dev-tasks ~/.claude/skills/ai-dev-tasks
 
-# 4. 각 프로젝트에서 scripts 설정 (프로젝트 루트에서 실행)
-cd ~/your-project
-ln -s ~/ai-dev-tasks/scripts ./scripts
-chmod +x scripts/*.sh
-
-# 또는 자동 설정 스크립트 사용
-~/ai-dev-tasks/setup-project.sh
+# 4. C++ 프로젝트만: Docker 리소스 링크
+cd ~/your-cpp-project
+ln -s ~/.claude/skills/ai-dev-tasks/docker ./docker
+ln -s ~/.claude/skills/ai-dev-tasks/Dockerfile.gcc15.1_22.04 ./Dockerfile.gcc15.1_22.04
 ```
 
 **완료!** 이제 모든 프로젝트에서 `/skill plan`, `/skill implement`를 사용할 수 있습니다.
+
+**Makefile 명령어:**
+- `make help` - 사용 가능한 명령어 확인
+- `make install` - 글로벌 스킬 및 리소스 설치
+- `make install-project PROJECT_PATH=/path` - C++ 프로젝트에 Docker 리소스 링크
+- `make check-global` - 글로벌 설치 상태 확인
+- `make check-project PROJECT_PATH=/path` - 프로젝트 리소스 확인
+- `make uninstall-global` - 글로벌 스킬 및 리소스 제거
 
 ---
 
@@ -373,7 +412,7 @@ docs/features/
 ./scripts/docker-setup.sh status
 
 # 컨테이너 접속
-docker exec -it cpp-dev-env zsh
+docker exec -it gcc15.1_22.04 zsh
 ```
 
 ### 볼륨 마운트
@@ -600,7 +639,7 @@ gh pr create --title "feat: JWT authentication" --body "..."
 docker info
 
 # 컨테이너 로그 확인
-docker logs cpp-dev-env
+docker logs gcc15.1_22.04
 
 # 강제 재시작
 ./scripts/docker-setup.sh stop
@@ -611,7 +650,7 @@ docker logs cpp-dev-env
 
 ```bash
 # 컨테이너 내부에서 수동 테스트
-docker exec -it cpp-dev-env bash
+docker exec -it gcc15.1_22.04 bash
 cd /workspace/build
 ctest --output-on-failure --verbose
 ```
@@ -620,7 +659,7 @@ ctest --output-on-failure --verbose
 
 ```bash
 # Valgrind 상세 로그
-docker exec cpp-dev-env bash -c "
+docker exec gcc15.1_22.04 bash -c "
   cd /workspace/build
   valgrind --leak-check=full --show-leak-kinds=all ./test_binary
 "
@@ -630,7 +669,7 @@ docker exec cpp-dev-env bash -c "
 
 ```bash
 # 클린 빌드
-docker exec cpp-dev-env bash -c "
+docker exec gcc15.1_22.04 bash -c "
   cd /workspace
   rm -rf build
   mkdir build

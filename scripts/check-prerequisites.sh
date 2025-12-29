@@ -252,7 +252,7 @@ if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
     echo "다음 단계:"
     echo "  1. Docker 컨테이너 빌드: ./scripts/docker-setup.sh build"
     echo "  2. Docker 컨테이너 시작: ./scripts/docker-setup.sh start"
-    echo "  3. 컨테이너 접속: docker exec -it cpp-dev-env zsh"
+    echo "  3. 컨테이너 접속: docker exec -it gcc15.1_22.04 zsh"
     exit 0
 elif [ $ERRORS -eq 0 ]; then
     echo -e "${YELLOW}⚠️  경고 ${WARNINGS}개 발견${NC}"

@@ -317,9 +317,9 @@ case "$PROJECT_TYPE" in
         ;;
     cpp)
         if [[ "$SCRIPTS_PATH" == "./scripts" ]]; then
-            echo "     docker exec cpp-dev-env ./scripts/cpp-quality-check.sh build 80"
+            echo "     docker exec gcc15.1_22.04 ./scripts/cpp-quality-check.sh build 80"
         else
-            echo "     docker exec cpp-dev-env ./scripts/ai-dev-tasks/cpp-quality-check.sh build 80"
+            echo "     docker exec gcc15.1_22.04 ./scripts/ai-dev-tasks/cpp-quality-check.sh build 80"
         fi
         ;;
     *)

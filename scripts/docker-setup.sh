@@ -98,7 +98,7 @@ start_container() {
     fi
 
     print_success "Docker 컨테이너 시작 완료"
-    print_info "컨테이너에 접속하려면: docker exec -it cpp-dev-env zsh"
+    print_info "컨테이너에 접속하려면: docker exec -it gcc15.1_22.04 zsh"
 }
 
 # Stop container
@@ -125,12 +125,12 @@ restart_container() {
 check_status() {
     print_info "Docker 컨테이너 상태 확인 중..."
 
-    if docker ps | grep -q cpp-dev-env; then
+    if docker ps | grep -q gcc15.1_22.04; then
         print_success "컨테이너가 실행 중입니다."
-        docker ps | grep cpp-dev-env
+        docker ps | grep gcc15.1_22.04
     else
         print_warning "컨테이너가 실행 중이 아닙니다."
-        if docker ps -a | grep -q cpp-dev-env; then
+        if docker ps -a | grep -q gcc15.1_22.04; then
             print_info "중지된 컨테이너가 존재합니다. 'start'를 실행하세요."
         else
             print_info "컨테이너가 존재하지 않습니다. 'build'를 먼저 실행하세요."

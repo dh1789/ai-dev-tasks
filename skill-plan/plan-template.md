@@ -99,9 +99,15 @@
 **C++ 프로젝트:**
 - **테스트 파일 위치**: `test/unit/`, `test/integration/`
 - **파일명 규칙**: `*_test.cpp`
-- **테스트 실행**: `docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ./test/unit/*_test --gtest_output=xml"`
+- **테스트 실행 (기본)**: `docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ./test/unit/*_test"`
+- **테스트 실행 (XML 출력 - CI/CD용)**: `docker exec gcc15.1_22.04 bash -c "cd /workspace/build && ./test/unit/*_test --gtest_output=xml"`
 - **특정 테스트**: `./test/unit/my_test --gtest_filter=TestName*` (Google Test 필터)
 - **상세 출력**: `./test/unit/*_test --gtest_verbose`
+
+**Google Test 출력 형식 가이드:**
+- `--gtest_output=xml`: CI/CD 파이프라인에서 사용 (테스트 결과를 XML로 저장)
+- `--gtest_output=json`: JSON 형식 출력 (자동화 도구 통합용)
+- 출력 형식 없음: 로컬 개발시 콘솔 출력 (사람이 읽기 쉬움)
 
 **Python 프로젝트:**
 - **테스트 파일 위치**: `tests/` 디렉토리

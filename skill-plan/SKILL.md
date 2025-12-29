@@ -843,108 +843,13 @@ AI: ✅ docs/features/2025-01-29-oauth2-authentication/PLAN.md 생성 완료
 
 ## 디버그 로깅 표준
 
-### 필수 로깅 구현
+**디버그 로깅 요구사항은 `process-task-list.md`의 "Debug Logging Requirements" 섹션을 참조하세요.**
 
-모든 프로덕션 코드는 문제 해결, 모니터링, 유지보수를 용이하게 하기 위해 **포괄적인 디버그 로깅**을 포함해야 합니다.
-
-**로깅 계층:**
-```
-DEBUG   → 상세 진단 정보 (함수 파라미터, 중간값, 디버깅용)
-INFO    → 일반 정보 (상태 변경, 마일스톤, 정상 흐름)
-WARN    → 잠재적 문제 (deprecation, 복구 가능한 오류)
-ERROR   → 실제 오류 (예외, 실패, 긴급 조치 필요)
-```
-
-**필수 로깅 지점:**
-
-1. **복잡한 함수 경계**
-   ```python
-   def process_payment(transaction):
-       logger.debug(f"결제 처리 시작 - transaction_id: {transaction.id}, amount: {transaction.amount}")
-       try:
-           result = payment_gateway.charge(transaction)
-           logger.info(f"결제 성공 - transaction_id: {transaction.id}")
-           return result
-       except PaymentError as e:
-           logger.error(f"결제 실패 - transaction_id: {transaction.id}, error: {e}", exc_info=True)
-           raise
-   ```
-
-2. **상태 전환**
-   ```python
-   logger.info(f"주문 상태 변경 - order_id: {order.id}, from: {old_status}, to: {new_status}")
-   ```
-
-3. **외부 시스템 연동**
-   ```python
-   logger.debug(f"API 요청 - endpoint: {url}, method: {method}, params: {params}")
-   response = api_call()
-   logger.debug(f"API 응답 - status: {response.status_code}, body: {response.body[:100]}")
-   ```
-
-4. **비즈니스 로직 의사결정**
-   ```python
-   if user.is_premium():
-       logger.debug(f"프리미엄 할인 적용 - user_id: {user.id}")
-   ```
-
-**보안 요구사항:**
-- ❌ 절대 로깅 금지: 비밀번호, 토큰, API 키, 신용카드 번호, 개인정보
-- ✅ 안전한 로깅: `logger.info(f"로그인 성공 - email: {email.split('@')[1]}")` (도메인만)
-
-**성능 고려사항:**
-- 적절한 로그 레벨 사용 (프로덕션에서는 DEBUG 비활성화)
-- 로그 구문에서 비용 높은 연산 회피
-- Lazy formatting 사용: `logger.debug("Value: %s", expensive_call())`
-
-**로그 분석 용이성:**
-- 구조화된 로깅 (JSON 형식 권장)
-- 일관된 키 이름 사용 (user_id, transaction_id, order_id)
-- 컨텍스트 충분히 포함 (ID, 파라미터, 상태)
-- 검색 가능한 문자열 사용
-
-## 유닛 테스트 프로덕션 코드 요구사항
-
-**핵심 원칙**: 유닛 테스트는 실제 프로덕션 코드를 테스트해야 하며, 테스트 전용 구현을 테스트해서는 안 됩니다.
-
-**요구사항**:
-1. **프로덕션 코드 임포트**: 모든 유닛 테스트는 프로덕션 디렉토리(`src/`, `lib/`, `app/` 등)에서 함수/클래스를 임포트해야 함
-2. **테스트 내 구현 금지**: 테스트 파일 내에서 프로덕션 함수/클래스를 정의하지 말 것
-3. **프로덕션 사용 검증**: 테스트된 모든 코드는 실제 프로덕션 애플리케이션에서 사용되어야 함
-4. **임포트 경로 검증**: 테스트 임포트는 테스트 유틸리티가 아닌 프로덕션 모듈을 가리켜야 함
-
-**올바른 예 vs 잘못된 예**:
-
-✅ **올바름 - 실제 프로덕션 코드 테스트**:
-```python
-# test/unit/payment/test_processor.py
-from src.payment.processor import ProcessPayment  # 프로덕션에서 임포트
-
-def test_payment_processing():
-    processor = ProcessPayment()  # 실제 프로덕션 클래스 사용
-    result = processor.charge(amount=100)
-    assert result.success == True
-```
-
-❌ **잘못됨 - 테스트 전용 구현**:
-```python
-# test/unit/payment/test_processor.py
-# 테스트 파일에 프로덕션 코드 정의 - 절대 금지
-class ProcessPayment:
-    def charge(self, amount):
-        return {"success": True}
-
-def test_payment_processing():
-    processor = ProcessPayment()  # 프로덕션에 존재하지 않는 코드 테스트
-    result = processor.charge(amount=100)
-    assert result["success"] == True
-```
-
-**테스트 커밋 전 검증 단계**:
-1. ✅ 모든 `import` 문이 프로덕션 코드 경로를 가리키는지 확인
-2. ✅ 테스트된 함수/클래스 정의가 프로덕션 코드베이스에 있는지 검색
-3. ✅ 테스트된 코드가 애플리케이션 진입점(`main.py`, `app.js` 등)에서 임포트되는지 확인
-4. ✅ 테스트 파일에 함수/클래스 정의가 없는지 확인 (테스트 fixture/helper 제외)
+주요 내용:
+- 로깅 레벨 (DEBUG, INFO, WARN, ERROR)
+- 필수 로깅 지점 (함수 경계, 상태 전환, 외부 시스템 연동 등)
+- 보안 요구사항 (민감 정보 로깅 금지)
+- 디버깅 프로토콜
 
 ## Slack 알림 프로토콜
 

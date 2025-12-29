@@ -376,7 +376,7 @@ Available skills:
 **C++ 프로젝트:**
 ```bash
 # Docker 컨테이너 내부에서
-docker exec -it cpp-dev-env bash
+docker exec -it gcc15.1_22.04 bash
 cd /workspace
 ./scripts/cpp-quality-check.sh build 80
 ```
@@ -529,7 +529,7 @@ docker info
 ./scripts/docker-setup.sh start
 
 # 4. 로그 확인
-docker logs cpp-dev-env
+docker logs gcc15.1_22.04
 ```
 
 ---
@@ -567,7 +567,7 @@ docker logs cpp-dev-env
 - [ ] `Dockerfile.gcc15.1_22.04` 파일 존재
 - [ ] `./scripts/docker-setup.sh build` 성공
 - [ ] `./scripts/docker-setup.sh start` 성공
-- [ ] `docker exec -it cpp-dev-env zsh` 접속 가능
+- [ ] `docker exec -it gcc15.1_22.04 zsh` 접속 가능
 
 ---
 

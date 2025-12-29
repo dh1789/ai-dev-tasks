@@ -198,7 +198,7 @@ docs/features/YYYY-MM-DD-feature-name/
 **RED Phase (복잡도 중간 이상):**
 ```bash
 # 컨테이너 내부에서
-docker exec cpp-dev-env bash -c "
+docker exec gcc15.1_22.04 bash -c "
   cd /workspace
   # 테스트 파일 생성
   # 테스트 실행 → 실패 확인
@@ -227,7 +227,6 @@ bundle exec rails test  # 또는 bundle exec rake test
 **Node.js/TypeScript:**
 ```bash
 npm test  # 또는 pnpm test, yarn test
-# 타임아웃: 10분 (600000ms)
 ```
 
 **C++:**
@@ -241,7 +240,8 @@ docker exec gcc15.1_22.04 bash -c "
 ```
 
 **공통 요구사항:**
-- **타임아웃**: 30분 (1800초/1800000ms) - 절대 스킵 불가
+- **타임아웃**: 30분 (1800000ms) - 모든 언어 공통
+- **절대 스킵 불가**: 모든 테스트는 반드시 완료까지 실행
 - **실패시**: 최대 3회 재시도 → 실패시 중단 및 보고
 
 #### C. 품질 검사 (언어별)
@@ -271,7 +271,7 @@ docker exec gcc15.1_22.04 bash -c "
 
 **C++:**
 ```bash
-docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-quality-check.sh build 80"
+docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-quality-check.sh"
 docker exec gcc15.1_22.04 bash -c "cd /workspace && ./scripts/cpp-memory-check.sh build all"
 ```
 **검사 항목:**
@@ -453,7 +453,7 @@ Phase X/Total completed"
 
 **필수 사항:**
 - ✅ 전체 테스트 스위트 실행
-- ✅ 10분 타임아웃 설정
+- ✅ **타임아웃 설정**: 30분 (1800000ms) - 모든 언어 공통
 - ✅ 모든 테스트 통과 대기
 - ✅ 실패시 재시도
 
@@ -565,105 +565,13 @@ ninja -j$(nproc)
 
 ## 디버그 로깅 표준
 
-### 필수 로깅 구현
+**디버그 로깅 요구사항은 `process-task-list.md`의 "Debug Logging Requirements" 섹션을 참조하세요.**
 
-모든 프로덕션 코드는 문제 해결, 모니터링, 유지보수를 용이하게 하기 위해 **포괄적인 디버그 로깅**을 포함해야 합니다.
-
-**로깅 계층:**
-```
-DEBUG   → 상세 진단 정보 (함수 파라미터, 중간값, 디버깅용)
-INFO    → 일반 정보 (상태 변경, 마일스톤, 정상 흐름)
-WARN    → 잠재적 문제 (deprecation, 복구 가능한 오류)
-ERROR   → 실제 오류 (예외, 실패, 긴급 조치 필요)
-```
-
-**필수 로깅 지점:**
-
-1. **복잡한 함수 경계**
-   ```python
-   def process_payment(transaction):
-       logger.debug(f"결제 처리 시작 - transaction_id: {transaction.id}, amount: {transaction.amount}")
-       try:
-           result = payment_gateway.charge(transaction)
-           logger.info(f"결제 성공 - transaction_id: {transaction.id}")
-           return result
-       except PaymentError as e:
-           logger.error(f"결제 실패 - transaction_id: {transaction.id}, error: {e}", exc_info=True)
-           raise
-   ```
-
-2. **상태 전환**
-   ```python
-   logger.info(f"주문 상태 변경 - order_id: {order.id}, from: {old_status}, to: {new_status}")
-   ```
-
-3. **외부 시스템 연동**
-   ```python
-   logger.debug(f"API 요청 - endpoint: {url}, method: {method}, params: {params}")
-   response = api_call()
-   logger.debug(f"API 응답 - status: {response.status_code}, body: {response.body[:100]}")
-   ```
-
-4. **비즈니스 로직 의사결정**
-   ```python
-   if user.is_premium():
-       logger.debug(f"프리미엄 할인 적용 - user_id: {user.id}")
-   ```
-
-**보안 요구사항:**
-- ❌ 절대 로깅 금지: 비밀번호, 토큰, API 키, 신용카드 번호, 개인정보
-- ✅ 안전한 로깅: `logger.info(f"로그인 성공 - email: {email.split('@')[1]}")` (도메인만)
-
-**성능 고려사항:**
-- 적절한 로그 레벨 사용 (프로덕션에서는 DEBUG 비활성화)
-- 로그 구문에서 비용 높은 연산 회피
-- Lazy formatting 사용: `logger.debug("Value: %s", expensive_call())`
-
-**로그 분석 용이성:**
-- 구조화된 로깅 (JSON 형식 권장)
-- 일관된 키 이름 사용 (user_id, transaction_id, order_id)
-- 컨텍스트 충분히 포함 (ID, 파라미터, 상태)
-- 검색 가능한 문자열 사용
-
-### Debugging Protocol
-
-**이슈 발생 시 디버깅 절차:**
-
-1. **로그 우선 검토**:
-   - 먼저 로그 파일을 확인
-   - 타임스탬프로 이슈 발생 시점 특정
-   - ERROR 레벨 로그부터 역추적
-
-2. **컨텍스트 분석**:
-   - 관련 ID 추출 (user_id, transaction_id 등)
-   - 해당 ID로 전체 로그 필터링
-   - 실행 흐름 재구성
-
-3. **원인 파악**:
-   - 로그의 DEBUG 레벨까지 확인
-   - 의사결정 지점 확인
-   - 예상치 못한 분기 식별
-
-4. **재현 및 수정**:
-   - 로그 기반으로 재현 시나리오 작성
-   - 필요시 추가 로그 삽입
-   - 수정 후 로그로 검증
-
-### 로그 분석 도구 활용
-
-```bash
-# 특정 에러 검색
-grep "ERROR" logs/application.log
-
-# 특정 ID 추적
-grep "transaction_id=12345" logs/application.log
-
-# 시간대별 필터링
-grep "2025-12-29 14:" logs/application.log
-
-# 실시간 모니터링
-tail -f logs/application.log | grep "ERROR\|WARN"
-```
+주요 내용:
+- 로깅 레벨 (DEBUG, INFO, WARN, ERROR)
+- 필수 로깅 지점 (함수 경계, 상태 전환, 외부 시스템 연동 등)
+- 보안 요구사항 (민감 정보 로깅 금지)
+- 디버깅 프로토콜
 
 ## 유닛 테스트 프로덕션 코드 요구사항
 

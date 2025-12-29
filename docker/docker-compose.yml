@@ -7,7 +7,7 @@ services:
       context: ..
       dockerfile: Dockerfile.gcc15.1_22.04
 
-    container_name: cpp-dev-env
+    container_name: gcc15.1_22.04
 
     # Keep container running
     command: tail -f /dev/null
