@@ -603,21 +603,35 @@ ninja -j$(nproc)
 2. **테스트 내 구현 금지**: 테스트 파일 내에서 프로덕션 함수/클래스를 정의하지 말 것
 3. **프로덕션 사용 검증**: 테스트된 모든 코드는 실제 프로덕션 애플리케이션에서 사용되어야 함
 4. **임포트 경로 검증**: 테스트 임포트는 테스트 유틸리티가 아닌 프로덕션 모듈을 가리켜야 함
+5. **테스트 설명 필수**: 모든 테스트는 무엇을 테스트하는지 간략한 설명을 포함해야 함
 
 **올바른 예 vs 잘못된 예**:
 
-✅ **올바름 - 실제 프로덕션 코드 테스트**:
+✅ **올바름 - 실제 프로덕션 코드 테스트 (설명 포함)**:
 ```python
 # test/unit/payment/test_processor.py
 from src.payment.processor import ProcessPayment  # 프로덕션에서 임포트
 
-def test_payment_processing():
+def test_payment_processing_with_valid_amount():
+    """
+    유효한 금액으로 결제 처리 시 성공 결과를 반환해야 함
+
+    시나리오: 100원 결제 요청
+    기대 결과: success=True
+    """
+    # Arrange
     processor = ProcessPayment()  # 실제 프로덕션 클래스 사용
-    result = processor.charge(amount=100)
+    amount = 100
+
+    # Act
+    result = processor.charge(amount=amount)
+
+    # Assert
     assert result.success == True
+    assert result.amount == amount
 ```
 
-❌ **잘못됨 - 테스트 전용 구현**:
+❌ **잘못됨 - 테스트 전용 구현 (설명 없음)**:
 ```python
 # test/unit/payment/test_processor.py
 # 테스트 파일에 프로덕션 코드 정의 - 절대 금지
@@ -625,7 +639,7 @@ class ProcessPayment:
     def charge(self, amount):
         return {"success": True}
 
-def test_payment_processing():
+def test_payment_processing():  # 설명 없음
     processor = ProcessPayment()  # 프로덕션에 존재하지 않는 코드 테스트
     result = processor.charge(amount=100)
     assert result["success"] == True

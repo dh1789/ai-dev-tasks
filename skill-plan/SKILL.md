@@ -732,6 +732,83 @@ phpunit --coverage-html coverage
 
 #### 일반적인 테스트 패턴
 
+**테스트 설명 작성 요구사항**:
+모든 테스트는 **간략한 설명**을 포함해야 합니다:
+- **목적**: 무엇을 테스트하는지
+- **시나리오**: 어떤 상황에서
+- **기대 결과**: 무엇이 발생해야 하는지
+
+**언어별 테스트 설명 예시**:
+
+*Python (pytest):*
+```python
+def test_calculate_total_with_valid_items():
+    """
+    유효한 아이템들로 총액을 계산할 때
+    모든 아이템의 가격 합계를 정확히 반환해야 함
+    """
+    # Arrange
+    items = [Item(price=100), Item(price=200)]
+    calculator = PriceCalculator()
+
+    # Act
+    total = calculator.calculate_total(items)
+
+    # Assert
+    assert total == 300
+```
+
+*JavaScript/TypeScript (Jest):*
+```typescript
+describe('PriceCalculator', () => {
+  test('유효한 아이템들로 총액을 계산할 때 모든 가격의 합계를 반환한다', () => {
+    // Arrange: 테스트 데이터 설정
+    const items = [{ price: 100 }, { price: 200 }];
+    const calculator = new PriceCalculator();
+
+    // Act: 동작 실행
+    const total = calculator.calculateTotal(items);
+
+    // Assert: 결과 검증
+    expect(total).toBe(300);
+  });
+});
+```
+
+*C++ (Google Test):*
+```cpp
+// 유효한 아이템들로 총액 계산 시 모든 가격의 합계를 반환해야 함
+TEST(PriceCalculatorTest, CalculateTotalWithValidItems) {
+    // Arrange: 테스트 데이터 준비
+    std::vector<Item> items = {Item(100), Item(200)};
+    PriceCalculator calculator;
+
+    // Act: 동작 실행
+    int total = calculator.calculateTotal(items);
+
+    // Assert: 결과 검증
+    EXPECT_EQ(total, 300);
+}
+```
+
+*Ruby (Minitest):*
+```ruby
+class PriceCalculatorTest < Minitest::Test
+  # 유효한 아이템들로 총액을 계산할 때 모든 가격의 합계를 반환해야 함
+  def test_calculate_total_with_valid_items
+    # Arrange: 테스트 데이터 설정
+    items = [Item.new(price: 100), Item.new(price: 200)]
+    calculator = PriceCalculator.new
+
+    # Act: 동작 실행
+    total = calculator.calculate_total(items)
+
+    # Assert: 결과 검증
+    assert_equal 300, total
+  end
+end
+```
+
 **Arrange-Act-Assert (AAA) 패턴**:
 ```
 test 'description of behavior':
@@ -777,11 +854,39 @@ test 'component should call dependency':
 
 **각 phase에서 명시**:
 1. **테스트 파일 위치**: 테스트가 작성될 정확한 경로
-2. **테스트 시나리오**: 특정 테스트 케이스 목록
+2. **테스트 시나리오**: 특정 테스트 케이스 목록 (각 테스트에 대한 간략한 설명 포함)
 3. **예상 실패**: 초기에 테스트가 표시해야 할 오류는?
 4. **커버리지 목표**: 이 phase의 퍼센트
 5. **Mock할 의존성**: Mock/stub이 필요한 것은?
 6. **테스트 데이터**: 필요한 fixture/factory는?
+
+**테스트 시나리오 문서화 예시**:
+```markdown
+### Phase 2: Core Logic - 테스트 시나리오
+
+**파일**: `test/unit/payment/processor_test.cpp`
+
+**테스트 케이스**:
+1. `test_process_payment_with_valid_card`
+   - 설명: 유효한 카드로 결제 처리 시 성공 응답 반환
+   - 입력: 유효한 카드 정보 (번호, 만료일, CVV)
+   - 기대: `PaymentResult.success == true`
+
+2. `test_process_payment_with_expired_card`
+   - 설명: 만료된 카드로 결제 시도 시 실패 응답 반환
+   - 입력: 만료일이 지난 카드 정보
+   - 기대: `PaymentResult.success == false`, 에러 메시지 포함
+
+3. `test_process_payment_with_insufficient_funds`
+   - 설명: 잔액 부족 시 거래 거부
+   - 입력: 잔액보다 큰 금액
+   - 기대: `PaymentResult.errorCode == INSUFFICIENT_FUNDS`
+
+4. `test_process_payment_with_invalid_cvv`
+   - 설명: 잘못된 CVV로 보안 검증 실패
+   - 입력: CVV 불일치하는 카드 정보
+   - 기대: `PaymentResult.errorCode == INVALID_CVV`
+```
 
 ### 6단계: 테스트 전략 정의
 

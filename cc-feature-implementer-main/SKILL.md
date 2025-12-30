@@ -411,21 +411,35 @@ Consider:
 2. **No Test-Local Implementations**: NEVER define production functions/classes inside test files
 3. **Production Usage Verification**: All tested code must be actually used in the production application
 4. **Import Path Validation**: Test imports must point to production modules, not test utilities
+5. **Test Description Required**: Every test MUST include a brief description of what it tests
 
 **Correct vs Incorrect Examples**:
 
-✅ **CORRECT - Testing Actual Production Code**:
+✅ **CORRECT - Testing Actual Production Code with Description**:
 ```python
 # test/unit/payment/test_processor.py
 from src.payment.processor import ProcessPayment  # Import from production
 
-def test_payment_processing():
+def test_payment_processing_with_valid_amount():
+    """
+    Test payment processing with valid amount returns success result
+
+    Scenario: Process a 100 unit payment
+    Expected: success=True, amount matches input
+    """
+    # Arrange
     processor = ProcessPayment()  # Use actual production class
-    result = processor.charge(amount=100)
+    amount = 100
+
+    # Act
+    result = processor.charge(amount=amount)
+
+    # Assert
     assert result.success == True
+    assert result.amount == amount
 ```
 
-❌ **WRONG - Test-Specific Implementation**:
+❌ **WRONG - Test-Specific Implementation without Description**:
 ```python
 # test/unit/payment/test_processor.py
 # Defining production code in test file - NEVER DO THIS
@@ -433,7 +447,7 @@ class ProcessPayment:
     def charge(self, amount):
         return {"success": True}
 
-def test_payment_processing():
+def test_payment_processing():  # No description
     processor = ProcessPayment()  # Testing code that doesn't exist in production
     result = processor.charge(amount=100)
     assert result["success"] == True
