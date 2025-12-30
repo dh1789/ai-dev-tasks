@@ -383,77 +383,17 @@ AskUserQuestion({
 
 ### 3단계: PRD 생성
 
-수집된 정보를 바탕으로 다음 구조의 PRD를 생성합니다:
+**PRD 구조 및 작성 가이드라인은 `create-prd.md` 문서를 참조하세요.**
 
-```markdown
-# PRD: [기능명]
+수집된 정보를 바탕으로 다음 항목이 포함된 PRD를 생성합니다:
+- 개요 및 목표
+- 기능 요구사항 및 비기능 요구사항
+- 사용자 시나리오
+- 기술 스택 (프로젝트 타입 자동 감지 결과 포함)
+- 테스트 요구사항 (`testing-standards.md` 참조)
+- 성공 지표
 
-## 개요
-[기능 요약 및 목적]
-
-## 목표
-- 구체적이고 측정 가능한 목표들
-
-## 기능 요구사항
-1. [요구사항 1]
-2. [요구사항 2]
-...
-
-## 비기능 요구사항
-
-### 성능
-- [성능 목표]
-
-### 보안
-- [보안 요구사항]
-
-### 안정성
-- [안정성 목표]
-
-## 제약사항 및 비목표
-- [포함하지 않을 것들]
-
-## 사용자 시나리오
-### 시나리오 1: [이름]
-[상세 설명]
-
-## 기술 스택
-
-**자동 감지된 프로젝트 타입: [Ruby/Node.js/C++/Python]**
-
-*Ruby/Rails 프로젝트 예시:*
-- 언어: Ruby 3.3.x
-- 프레임워크: Rails 8.0.x
-- 데이터베이스: MySQL / SQLite (테스트)
-- 테스트: Minitest
-- 배포: Kamal / Heroku
-- 프론트엔드: Hotwire (Turbo + Stimulus)
-
-*Node.js/TypeScript 프로젝트 예시:*
-- 언어: TypeScript 5.x
-- 런타임: Node.js 20+
-- 패키지 매니저: pnpm / npm / yarn
-- 프레임워크: Express / Next.js
-- 테스트: Jest / Vitest
-- 빌드: tsup / esbuild
-
-*C++ 프로젝트 예시:*
-- 언어: C++23
-- 컴파일러: GCC 15.1.0
-- 빌드: CMake + Ninja
-- 테스트: Google Test
-- 환경: Docker (Ubuntu 22.04)
-
-*Python 프로젝트 예시:*
-- 언어: Python 3.12+
-- 의존성: Poetry / pip
-- 프레임워크: FastAPI / Django
-- 테스트: pytest
-- 타입 체크: mypy
-
-## 성공 지표
-- [측정 가능한 성공 기준]
-```
+상세한 PRD 템플릿 및 섹션 구조는 `create-prd.md`의 "PRD Structure" 섹션 참조.
 
 ### 4단계: Architecture 설계
 
@@ -579,6 +519,8 @@ AskUserQuestion({
 
 ### 5-A단계: 테스트 명세 가이드라인
 
+**TDD 철학 및 원칙은 `tdd.md`와 `testing-standards.md`를 참조하세요.**
+
 #### TDD (Test-First Development) 워크플로우
 
 **각 기능 컴포넌트에 대해**:
@@ -610,64 +552,15 @@ AskUserQuestion({
 
 #### 유닛 테스트 프로덕션 코드 요구사항
 
-**핵심 원칙**: 유닛 테스트는 실제 프로덕션 코드를 테스트해야 하며, 테스트 전용 구현을 테스트해서는 안 됩니다.
+**유닛 테스트는 반드시 실제 프로덕션 코드를 테스트해야 합니다.**
 
-**요구사항**:
-1. **프로덕션 코드 임포트**: 모든 유닛 테스트는 프로덕션 디렉토리(`src/`, `lib/`, `app/` 등)에서 함수/클래스를 임포트해야 함
-2. **테스트 내 구현 금지**: 테스트 파일 내에서 프로덕션 함수/클래스를 정의하지 말 것
-3. **프로덕션 사용 검증**: 테스트된 모든 코드는 실제 프로덕션 애플리케이션에서 사용되어야 함
-4. **임포트 경로 검증**: 테스트 임포트는 테스트 유틸리티가 아닌 프로덕션 모듈을 가리켜야 함
+상세한 요구사항 및 가이드라인은 `testing-standards.md`의 "유닛 테스트 프로덕션 코드 요구사항" 섹션을 참조하세요.
 
-**올바른 예 vs 잘못된 예**:
-
-✅ **올바름 - 실제 프로덕션 코드 테스트**:
-```python
-# test/unit/payment/test_processor.py
-from src.payment.processor import ProcessPayment  # 프로덕션에서 임포트
-
-def test_payment_processing():
-    processor = ProcessPayment()  # 실제 프로덕션 클래스 사용
-    result = processor.charge(amount=100)
-    assert result.success == True
-```
-
-❌ **잘못됨 - 테스트 전용 구현**:
-```python
-# test/unit/payment/test_processor.py
-# 테스트 파일에 프로덕션 코드 정의 - 절대 금지
-class ProcessPayment:
-    def charge(self, amount):
-        return {"success": True}
-
-def test_payment_processing():
-    processor = ProcessPayment()  # 프로덕션에 존재하지 않는 코드 테스트
-    result = processor.charge(amount=100)
-    assert result["success"] == True
-```
-
-**테스트 커밋 전 검증 단계**:
-1. ✅ 모든 `import` 문이 프로덕션 코드 경로를 가리키는지 확인
-2. ✅ 테스트된 함수/클래스 정의가 프로덕션 코드베이스에 있는지 검색
-3. ✅ 테스트된 코드가 애플리케이션 진입점(`main.py`, `app.js` 등)에서 임포트되는지 확인
-4. ✅ 테스트 파일에 함수/클래스 정의가 없는지 확인 (테스트 fixture/helper 제외)
-
-**피해야 할 일반적인 안티패턴**:
-- ❌ `src/`에서 임포트하는 대신 테스트 파일에 전체 클래스 구현
-- ❌ 통과하지만 프로덕션에서 실행되지 않는 코드 테스트 작성
-- ❌ 프로덕션 코드를 완전히 대체하는 mock 구현 생성 (의존성에만 stub 사용)
-- ❌ 테스트 헬퍼 파일에만 정의된 유틸리티 함수 테스트
-
-**프로덕션 코드 검증 명령어**:
-```bash
-# 의심스러운 class/function 정의가 있는 테스트 파일 찾기
-grep -r "^class\|^def\|^function" test/ --include="*.py" --include="*.js" --include="*.ts"
-
-# 테스트 파일의 임포트가 프로덕션을 가리키는지 확인
-grep -r "from src\|import.*src\|require.*src" test/
-
-# 테스트된 코드가 프로덕션에 존재하는지 확인
-grep -r "class ProcessPayment\|def process_payment" src/ lib/ app/
-```
+핵심 원칙:
+- 프로덕션 디렉토리(`src/`, `lib/`, `app/`)에서 코드 임포트
+- 테스트 파일 내 프로덕션 코드 정의 금지
+- 모든 테스트는 실제 사용되는 코드만 검증
+- 테스트 설명 필수 (목적, 시나리오, 기대 결과)
 
 #### 테스트 유형
 
@@ -1162,64 +1055,14 @@ AI: ✅ docs/features/2025-01-29-oauth2-authentication/PLAN.md 생성 완료
 
 ## Slack 알림 프로토콜
 
-**필수**: 다음 상황에서 Slack webhook 알림을 보내야 합니다:
+**Slack 알림 요구사항은 `process-task-list.md`의 "Slack Notification Requirements" 섹션을 참조하세요.**
 
-### 알림을 보내야 하는 경우
-
-1. **계획 완료**:
-   - 프로젝트 이름/경로, Phase 개수, 예상 시간 포함
-   - 상태: `success`
-   - 예: "계획 수립 완료 ✅ - jwt-authentication, 5개 Phase, 예상 12시간"
-
-2. **계획 실패 또는 타협 필요**:
-   - 실패 이유를 명확히 설명
-   - 대안 제시 (스킵, 단순화, 범위 축소)
-   - 사용자 피드백 대기 후 진행
-   - 상태: `error`
-   - 예: "계획 수립 실패 ⚠️ - 요구사항 불명확. 추가 정보 필요"
-
-3. **더 나은 접근 방식 제안**:
-   - 대안 접근 방식을 권장하는 이유 설명
-   - 명확한 근거와 이점 제공
-   - 방향 변경 전 사용자 승인 대기
-   - 상태: `info`
-   - 예: "더 나은 방법 제안 💡 - Phase를 3개에서 5개로 분리하여 위험 감소"
-
-### Webhook 설정
-
-- **Webhook URL**: `https://hooks.slack.com/services/YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_TOKEN`
-- **환경 변수**: `~/.zshrc` 또는 `~/.bashrc`에 `SLACK_WEBHOOK_URL` 설정:
-  ```bash
-  export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_TOKEN"
-  ```
-- **문자 제한**: 최대 1000자 - 메시지는 자동으로 잘립니다
-- **메시지 언어**: 모든 Slack 메시지는 **한글**로 작성해야 합니다
-- **스크립트 위치**: `./scripts/slack-notify.sh`
-
-### slack-notify.sh 스크립트 사용
-
-**사용법**:
-```bash
-~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "메시지 내용" [status]
-```
-
-**상태 옵션**:
-- `success` - 작업 성공 (초록색, ✅)
-- `error` - 작업 실패 또는 오류 발생 (빨간색, ❌)
-- `warning` - 경고 또는 주의 필요 (주황색, ⚠️)
-- `info` - 일반 정보 (파란색, ℹ️) [기본값]
-
-**예제**:
-```bash
-# 계획 완료
-~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "계획 수립 완료 - jwt-authentication, 5개 Phase, 예상 12시간" "success"
-
-# 계획 실패
-~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "계획 수립 실패 - 요구사항 불명확. 추가 정보 필요" "error"
-
-# 더 나은 접근 방식 제안
-~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh "더 나은 방법 제안 - Phase 분리로 위험 감소" "info"
-```
+주요 내용:
+- 알림을 보내야 하는 상황 (완료, 실패, 대안 제안)
+- Webhook 설정 및 환경 변수
+- slack-notify.sh 스크립트 사용법
+- 메시지 언어 (한글) 요구사항
+- 상태 옵션 (success, error, warning, info)
 
 ## 지원 파일
 

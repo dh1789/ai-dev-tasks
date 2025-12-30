@@ -36,16 +36,9 @@ The generated PRD should include the following sections:
 5.  **Non-Goals (Out of Scope):** Clearly state what this feature will *not* include to manage scope.
 6.  **Design Considerations (Optional):** Link to mockups, describe UI/UX requirements, or mention relevant components/styles if applicable.
 7.  **Technical Considerations (Optional):** Mention any known technical constraints, dependencies, or suggestions (e.g., "Should integrate with the existing Auth module").
-8.  **Testing Requirements:** Define comprehensive testing expectations for the feature:
-    *   **Unit Testing:** All implemented classes and functions must include unit tests using the programming language's native testing framework (e.g., Jest for JavaScript, pytest for Python, JUnit for Java). Each unit test suite must include a minimum of 3 test cases covering:
-        *   **Happy Path:** Verify that the most common, expected scenarios work correctly as intended.
-        *   **Boundary Conditions:** Test edge cases including minimum values, maximum values, empty inputs, null values, and other boundary scenarios.
-        *   **Exception Cases:** Validate proper handling of invalid inputs, error conditions, and exceptional circumstances.
-        *   **Side Effects:** Ensure test independence (tests do not affect each other) and that code does not impact global state or external systems unexpectedly.
-    *   **System Testing:** Based on the user stories defined in this PRD, create and execute end-to-end system tests that:
-        *   Test at least 2 realistic user scenarios representing normal feature usage.
-        *   Use real data for validation (no hardcoded values or dummy data).
-        *   Verify the complete user workflow from start to finish.
+8.  **Testing Requirements:** 상세한 테스트 요구사항은 `testing-standards.md`를 참조하세요.
+    *   **Unit Testing:** 모든 구현된 클래스와 함수에는 유닛 테스트 필수 (최소 3가지 케이스: Happy Path, Boundary Conditions, Exception Cases)
+    *   **System Testing:** PRD의 사용자 스토리 기반 최소 2개의 realistic user scenarios 테스트 (실제 데이터 사용 필수)
 9.  **Success Metrics:** How will the success of this feature be measured? (e.g., "Increase user engagement by 10%", "Reduce support tickets related to X").
 10. **Open Questions:** List any remaining questions or areas needing further clarification.
 
@@ -61,27 +54,12 @@ Assume the primary reader of the PRD is a **junior developer**. Therefore, requi
 
 ## Language Policy
 
-**IMPORTANT:** All PRD content must be written in Korean (한글) to ensure accessibility for the target audience of junior developers.
+**상세한 언어 정책은 `language-policy.md`를 참조하세요.**
 
-### Language Requirements:
-
-1. **PRD Content Language:**
-   - All section headings, descriptions, requirements, and narratives must be written in Korean
-   - User stories, functional requirements, and all descriptive text must use Korean
-   - Code examples and comments within the PRD must include Korean explanations
-
-2. **Technical Terms:**
-   - Common technical terms and abbreviations used in Korean development context may remain in English (e.g., API, HTTP, REST, JSON, URL, framework names, library names)
-   - Programming language keywords and syntax remain in their original form
-   - When in doubt, use the term as it would naturally appear in Korean technical documentation
-
-3. **User Communication:**
-   - All summaries and reports to the user must be in Korean
-   - When reporting to users, include information about any markdown files that were created, modified, or deleted during the process
-
-### Example:
-- ✅ Correct: "사용자는 프로필 사진을 업로드할 수 있어야 합니다. (API endpoint: `/upload`)"
-- ❌ Incorrect: "User must be able to upload profile picture."
+핵심 원칙:
+- 모든 PRD 콘텐츠는 **한글(Korean)**로 작성
+- 기술 용어(API, HTTP, REST 등)와 코드는 영어 유지
+- 사용자 커뮤니케이션은 항상 한글
 
 ## Final instructions
 

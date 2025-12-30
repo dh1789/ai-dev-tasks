@@ -596,66 +596,15 @@ ninja -j$(nproc)
 
 ## 유닛 테스트 프로덕션 코드 요구사항
 
-**핵심 원칙**: 유닛 테스트는 실제 프로덕션 코드를 테스트해야 하며, 테스트 전용 구현을 테스트해서는 안 됩니다.
+**유닛 테스트는 반드시 실제 프로덕션 코드를 테스트해야 합니다.**
 
-**요구사항**:
-1. **프로덕션 코드 임포트**: 모든 유닛 테스트는 프로덕션 디렉토리(`src/`, `lib/`, `app/` 등)에서 함수/클래스를 임포트해야 함
-2. **테스트 내 구현 금지**: 테스트 파일 내에서 프로덕션 함수/클래스를 정의하지 말 것
-3. **프로덕션 사용 검증**: 테스트된 모든 코드는 실제 프로덕션 애플리케이션에서 사용되어야 함
-4. **임포트 경로 검증**: 테스트 임포트는 테스트 유틸리티가 아닌 프로덕션 모듈을 가리켜야 함
-5. **테스트 설명 필수**: 모든 테스트는 무엇을 테스트하는지 간략한 설명을 포함해야 함
+상세한 요구사항 및 가이드라인은 `testing-standards.md`의 "유닛 테스트 프로덕션 코드 요구사항" 섹션을 참조하세요.
 
-**올바른 예 vs 잘못된 예**:
-
-✅ **올바름 - 실제 프로덕션 코드 테스트 (설명 포함)**:
-```python
-# test/unit/payment/test_processor.py
-from src.payment.processor import ProcessPayment  # 프로덕션에서 임포트
-
-def test_payment_processing_with_valid_amount():
-    """
-    유효한 금액으로 결제 처리 시 성공 결과를 반환해야 함
-
-    시나리오: 100원 결제 요청
-    기대 결과: success=True
-    """
-    # Arrange
-    processor = ProcessPayment()  # 실제 프로덕션 클래스 사용
-    amount = 100
-
-    # Act
-    result = processor.charge(amount=amount)
-
-    # Assert
-    assert result.success == True
-    assert result.amount == amount
-```
-
-❌ **잘못됨 - 테스트 전용 구현 (설명 없음)**:
-```python
-# test/unit/payment/test_processor.py
-# 테스트 파일에 프로덕션 코드 정의 - 절대 금지
-class ProcessPayment:
-    def charge(self, amount):
-        return {"success": True}
-
-def test_payment_processing():  # 설명 없음
-    processor = ProcessPayment()  # 프로덕션에 존재하지 않는 코드 테스트
-    result = processor.charge(amount=100)
-    assert result["success"] == True
-```
-
-**테스트 커밋 전 검증 단계**:
-1. ✅ 모든 `import` 문이 프로덕션 코드 경로를 가리키는지 확인
-2. ✅ 테스트된 함수/클래스 정의가 프로덕션 코드베이스에 있는지 검색
-3. ✅ 테스트된 코드가 애플리케이션 진입점(`main.py`, `app.js` 등)에서 임포트되는지 확인
-4. ✅ 테스트 파일에 함수/클래스 정의가 없는지 확인 (테스트 fixture/helper 제외)
-
-**일반적인 안티패턴 회피**:
-- ❌ `src/`에서 임포트하는 대신 테스트 파일에 전체 클래스 구현
-- ❌ 통과하지만 프로덕션에서 실행되지 않는 코드 테스트 작성
-- ❌ 프로덕션 코드를 완전히 대체하는 mock 구현 생성 (의존성에만 stub 사용)
-- ❌ 테스트 헬퍼 파일에만 정의된 유틸리티 함수 테스트
+핵심 원칙:
+- 프로덕션 디렉토리(`src/`, `lib/`, `app/`)에서 코드 임포트
+- 테스트 파일 내 프로덕션 코드 정의 금지
+- 모든 테스트는 실제 사용되는 코드만 검증
+- 테스트 설명 필수 (목적, 시나리오, 기대 결과)
 
 ## 지원 파일
 

@@ -42,22 +42,17 @@ The generated task list _must_ follow this structure:
 
 #### Testing Requirements
 
+**상세한 테스트 요구사항은 `testing-standards.md`를 참조하세요.**
+
 **Unit Testing:**
-- Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
-- All implementations must use the programming language's native testing framework (e.g., Jest for JavaScript/TypeScript, pytest for Python, JUnit for Java, RSpec for Ruby).
-- Each unit test suite must include a minimum of 3 test cases covering:
-  - **Happy Path:** Test the most common, expected usage scenarios to verify correct behavior.
-  - **Boundary Conditions:** Test edge cases including minimum values, maximum values, empty inputs, null values, and limit conditions.
-  - **Exception Cases:** Test invalid inputs, error conditions, and exceptional circumstances to ensure proper error handling.
-  - **Side Effects:** Ensure tests are independent (no interference between tests) and do not impact global state or external systems.
-- Use `npx jest [optional/path/to/test/file]` to run Jest tests. Running without a path executes all tests found by the Jest configuration. Adjust the command based on the project's testing framework.
+- 프로그래밍 언어의 네이티브 테스트 프레임워크 사용 필수 (Jest, pytest, JUnit, RSpec 등)
+- 최소 3가지 테스트 케이스 (Happy Path, Boundary Conditions, Exception Cases)
+- 테스트 독립성 및 부작용 관리
 
 **System Testing:**
-- Create system tests based on the user stories defined in the PRD.
-- Test at least 2 realistic user scenarios representing normal feature usage.
-- **Must use real data for validation** - no hardcoded values or dummy data allowed.
-- Verify complete user workflows from start to finish.
-- System tests should validate the integration of all components and the feature's end-to-end functionality.
+- PRD의 사용자 스토리 기반 최소 2개의 realistic scenarios
+- 실제 데이터 사용 필수 (하드코딩 금지)
+- 전체 워크플로우 검증
 
 ## Tasks
 
@@ -71,29 +66,12 @@ The generated task list _must_ follow this structure:
 
 ## Language Policy
 
-**IMPORTANT:** All task list content must be written in Korean (한글) to ensure clarity and accessibility for junior developers implementing the features.
+**상세한 언어 정책은 `language-policy.md`를 참조하세요.**
 
-### Language Requirements:
-
-1. **Task Content Language:**
-   - All parent task titles and descriptions must be written in Korean
-   - All sub-task descriptions must be written in Korean
-   - File descriptions in the "Relevant Files" section must be written in Korean
-   - All content in the "Notes" section must be written in Korean
-
-2. **Technical Terms:**
-   - Common technical terms and abbreviations used in Korean development context may remain in English (e.g., API, HTTP, component names, function names, file extensions)
-   - File paths and code identifiers remain in their original form
-   - Framework and library names remain in English
-   - When in doubt, use the term as it would naturally appear in Korean technical documentation
-
-3. **User Communication:**
-   - All progress reports and summaries to the user must be in Korean
-   - When reporting to users, include information about any markdown files that were created, modified, or deleted during the task generation process
-
-### Example:
-- ✅ Correct: "- [ ] 1.1 사용자 인증 API endpoint 구현 (`/api/auth/login`)"
-- ❌ Incorrect: "- [ ] 1.1 Implement user authentication API endpoint"
+핵심 원칙:
+- 모든 태스크 제목 및 설명은 **한글(Korean)**로 작성
+- 기술 용어(API, HTTP 등), 파일 경로, 코드 식별자는 영어 유지
+- 사용자 커뮤니케이션은 항상 한글
 
 ## Interaction Model
 
