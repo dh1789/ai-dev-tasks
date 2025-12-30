@@ -170,7 +170,7 @@ RUN npm install -g @bifrost_inc/superclaude
 RUN pip install blackduck-c-cpp
 
 ###############################################################################
-# Install Quality Assurance & Testing Tools for AI Dev Tasks
+# Install Quality Assurance & Testing Tools
 ###############################################################################
 
 # Install ccache for build speed optimization
@@ -207,16 +207,6 @@ RUN apt-get update && apt-get install -y \
     linux-tools-generic \
     linux-tools-common \
     && rm -rf /var/lib/apt/lists/* || true
-
-# Build and install include-what-you-use from source
-WORKDIR /tmp/iwyu-build
-RUN git clone https://github.com/include-what-you-use/include-what-you-use.git . && \
-    git checkout clang_14 && \
-    mkdir build && cd build && \
-    cmake -G "Unix Makefiles" -DCMAKE_PREFIX_PATH=/usr/lib/llvm-14 .. && \
-    make -j$(nproc) && \
-    make install && \
-    cd / && rm -rf /tmp/iwyu-build
 
 # Build and install Google Benchmark from source
 WORKDIR /tmp/benchmark-build
