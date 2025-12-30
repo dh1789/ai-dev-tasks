@@ -382,20 +382,41 @@ Phase X/Total completed"
 " error
 ```
 
-4. **사용자에게 보고:**
+4. **사용자에게 AskUserQuestion 도구로 질문:**
 
 ```
-❌ Phase X 실패
-
-문제: [설명]
-
-옵션:
-1. 디버깅 후 재시도
-2. Phase 스킵 (비권장)
-3. 대안 접근 방식 적용
-4. 요구사항 수정
-
-선택: ___
+AskUserQuestion({
+  questions: [
+    {
+      question: `Phase ${phaseNumber} 실패 - 다음 조치는 어떻게 할까요?`,
+      header: "Phase 실패",
+      multiSelect: false,
+      options: [
+        {
+          label: "디버깅 후 재시도 (권장)",
+          description: `문제: ${errorDescription}
+로그: ${logPath}
+자동 수정 시도 후 재시도합니다.`
+        },
+        {
+          label: "대안 접근 방식 적용",
+          description: `현재 접근 방식을 변경하여 재시도합니다.
+예상 추가 시간: 1-2시간`
+        },
+        {
+          label: "요구사항 수정",
+          description: `현재 Phase의 요구사항을 조정합니다.
+PLAN.md 업데이트 필요`
+        },
+        {
+          label: "Phase 스킵 (비권장)",
+          description: `⚠️ 이 Phase를 건너뛰고 다음 Phase로 진행합니다.
+품질 저하 가능성 있음`
+        }
+      ]
+    }
+  ]
+})
 ```
 
 ### 6단계: 전체 완료
@@ -724,17 +745,13 @@ AI: ...
     현재 상태 저장 중...
     ✅ PROGRESS.md 업데이트 완료
 
-    ❌ Phase 3 실패
+    [AskUserQuestion 도구로 사용자에게 질문]
 
-    문제: 통합 테스트 5개 실패
-    오류: [상세 로그]
+사용자: "디버깅 후 재시도" 선택
 
-    옵션:
-    1. 로그 확인 및 디버깅
-    2. 통합 방식 재검토
-    3. Phase 스킵 (비권장)
-
-    선택: ___
+AI: 로그 분석 중...
+    [디버깅 수행]
+    ...
 ```
 
 ## 주의사항

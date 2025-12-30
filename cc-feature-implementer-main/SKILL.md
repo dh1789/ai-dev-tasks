@@ -68,14 +68,44 @@ Include:
 - Notes & learnings area
 
 ### Step 4: User Approval
-**CRITICAL**: Use AskUserQuestion to get explicit approval before proceeding.
+**CRITICAL**: 반드시 **AskUserQuestion 도구**를 사용하여 명시적 승인을 받은 후 진행합니다.
 
-Ask:
-- "Does this phase breakdown make sense for your project?"
-- "Any concerns about the proposed approach?"
-- "Should I proceed with creating the plan document?"
+**승인 질문 예시:**
+```
+AskUserQuestion({
+  questions: [
+    {
+      question: "이 계획안을 승인하시겠습니까?",
+      header: "계획 승인",
+      multiSelect: false,
+      options: [
+        {
+          label: "승인 - 계획 문서 생성 (권장)",
+          description: `Phase 분해: ${phases.length}개
+예상 총 시간: ${totalHours}시간
+주요 컴포넌트: ${components.join(', ')}
+제안된 접근 방식에 문제가 없으면 진행합니다.`
+        },
+        {
+          label: "수정 필요",
+          description: "Phase 구성이나 접근 방식을 조정하고 싶습니다."
+        },
+        {
+          label: "처음부터 다시",
+          description: "요구사항 수집부터 다시 시작합니다."
+        }
+      ]
+    }
+  ]
+})
+```
 
-Only create plan document after user confirms approval.
+**승인 후 동작:**
+- **승인**: 즉시 PLAN 문서 생성
+- **수정 필요**: 사용자 피드백을 반영하여 계획 수정
+- **처음부터 다시**: 요구사항 분석부터 재시작
+
+**중요**: 사용자가 "승인"을 선택한 후에만 계획 문서를 생성합니다.
 
 ### Step 5: Document Generation
 1. Create `docs/plans/` directory if not exists
