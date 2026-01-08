@@ -5,6 +5,95 @@ description: 기능 구현 실행 - PLAN.md를 기반으로 자동으로 구현�
 
 # Feature Implementation Skill
 
+---
+
+## ⚠️ CRITICAL REQUIREMENTS (필수 체크리스트)
+
+**⛔ 스킬 실행 전/후 반드시 확인. 컨텍스트 압축 후에도 이 섹션을 다시 읽을 것.**
+
+### 우선순위 정의
+| 표시 | 의미 | 위반 시 |
+|-----|------|--------|
+| 🔴 **MUST** | 필수 - 반드시 준수 | 스킬 실패로 간주 |
+| 🟡 **SHOULD** | 권장 - 강력히 권장 | 경고 후 진행 가능 |
+| 🟢 **MAY** | 선택 - 상황에 따라 | 자유롭게 선택 |
+
+---
+
+### 📁 PLAN.md 로드 🔴 MUST
+- [ ] 🔴 PLAN.md 파일 존재 확인
+- [ ] 🔴 `docs/features/YYYY-MM-DD-feature-name/PLAN.md` 경로
+- [ ] 🔴 PLAN.md의 Phase 구조 파싱
+
+### 📊 Phase 실행 규칙 🔴 MUST
+- [ ] 🔴 **순차 실행**: Phase 1부터 순서대로 진행
+- [ ] 🔴 **품질 게이트 통과 후 다음 Phase**: 현재 Phase 완료 전 다음 Phase 시작 금지
+- [ ] 🔴 **TDD 사이클 준수**: 🔴RED → 🟢GREEN → 🔵REFACTOR
+
+### 🧪 테스트 정책 🔴 MUST
+- [ ] 🔴 **테스트 스킵 절대 금지**: `--skip-tests` 사용 불가
+- [ ] 🔴 **전체 테스트 실행**: 부분 실행 금지
+- [ ] 🔴 **타임아웃**: 30분 (1800000ms)
+- [ ] 🔴 **100% 통과 필수**: 실패 테스트 있으면 진행 불가
+- [ ] 🟡 **재시도**: 실패 시 최대 3회 재시도
+
+### 🔍 품질 검사 🔴 MUST
+**언어별 필수 검사:**
+
+| 언어 | 🔴 MUST | 🟡 SHOULD |
+|-----|---------|----------|
+| **Ruby/Rails** | 테스트 통과, RuboCop | Brakeman, Bundle Audit |
+| **Node.js/TS** | 테스트 통과, ESLint, 타입체크 | Prettier, 빌드 |
+| **C++** | 빌드, 테스트, Valgrind, ASan | clang-tidy, cppcheck |
+| **Bash/Shell** | shellcheck, bats 테스트 | shfmt |
+| **Ansible** | ansible-lint, molecule test | - |
+
+- [ ] 🔴 커버리지 ≥ 80%
+- [ ] 🔴 메모리 오류 0 (C++)
+- [ ] 🟡 정적 분석 경고 0
+
+### 📝 PROGRESS.md 관리 🔴 MUST
+- [ ] 🔴 PLAN.md와 같은 디렉토리에 생성
+- [ ] 🔴 각 Phase 완료 시 업데이트
+- [ ] 🔴 실패 시 현재 상태 기록
+- [ ] 🟡 소요 시간 기록
+
+### 💾 커밋 규칙 🔴 MUST
+- [ ] 🔴 **품질 게이트 통과 후에만 커밋**
+- [ ] 🔴 **Phase별 커밋**: 각 Phase 완료 시 개별 커밋
+- [ ] 🔴 **푸시 금지**: git push는 사용자가 수동으로
+- [ ] 🟡 커밋 메시지에 Phase 번호, 테스트 결과, 커버리지 포함
+
+### 🚨 중단 조건 🔴 MUST
+다음 상황에서 **즉시 중단** 및 사용자 개입 요청:
+- [ ] 🔴 테스트 실패 (3회 재시도 후)
+- [ ] 🔴 메모리 오류 (Valgrind/ASan)
+- [ ] 🔴 빌드 실패 (복구 불가)
+- [ ] 🔴 품질 게이트 실패
+
+### 📢 알림 🟡 SHOULD
+- [ ] 🟡 Phase 완료 시 Slack 알림
+- [ ] 🔴 중단 시 Slack 알림 (error)
+- [ ] 🟡 전체 완료 시 Slack 알림 (success)
+
+### ✅ 완료 검증 🔴 MUST
+- [ ] 🔴 모든 Phase 완료
+- [ ] 🔴 모든 테스트 통과 (100%)
+- [ ] 🔴 커버리지 목표 달성
+- [ ] 🔴 PROGRESS.md 최종 업데이트
+- [ ] 🟡 최종 Slack 알림 전송
+
+### 🔍 검증 스크립트 🟡 SHOULD
+```bash
+# 스킬 완료 후 실행
+~/.claude/skills/implement/scripts/validate-implement.sh docs/features/YYYY-MM-DD-feature-name/
+```
+- [ ] 🟡 검증 스크립트 실행
+- [ ] 🔴 FAIL 항목 0개 확인
+- [ ] 🟡 WARN 항목 검토
+
+---
+
 ## 목적
 
 PLAN.md를 기반으로 **자동화된 구현**을 수행합니다:
