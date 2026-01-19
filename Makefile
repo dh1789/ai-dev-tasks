@@ -11,6 +11,7 @@
 # Variables
 AI_DEV_TASKS_DIR := $(shell pwd)
 CLAUDE_SKILLS_DIR := $(HOME)/.claude/skills
+CLAUDE_AGENTS_DIR := $(HOME)/.claude/agents
 
 # Colors
 GREEN := \033[0;32m
@@ -35,9 +36,10 @@ help:
 	@echo "$(GREEN)사용법:$(NC)"
 	@echo ""
 	@echo "  $(YELLOW)make install$(NC)"
-	@echo "    글로벌 스킬 및 리소스 설치 (~/.claude/skills/)"
-	@echo "    • plan, implement 스킬"
-	@echo "    • ai-dev-tasks 전체 디렉토리 (scripts, docker 등)"
+	@echo "    글로벌 스킬 및 서브에이전트 설치"
+	@echo "    • 스킬: plan, implement → ~/.claude/skills/"
+	@echo "    • 서브에이전트: planner, implementer, reviewer → ~/.claude/agents/"
+	@echo "    • 리소스: ai-dev-tasks 전체 디렉토리 (scripts, docker 등)"
 	@echo ""
 	@echo "  $(YELLOW)make install-project PROJECT_PATH=/path/to/project$(NC)"
 	@echo "    C++ 프로젝트에 Docker 리소스 링크 (docker/, Dockerfile)"
@@ -111,17 +113,56 @@ install-global:
 	@ln -s "$(AI_DEV_TASKS_DIR)" "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks"
 	@echo "$(GREEN)✅ ai-dev-tasks 전체 리소스 설치 완료$(NC)"
 	@echo ""
-	@echo "$(GREEN)🎉 글로벌 스킬 설치 완료!$(NC)"
+	@echo "$(BLUE)📋 서브에이전트 설치 중...$(NC)"
+	@mkdir -p $(CLAUDE_AGENTS_DIR)
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/planner.md" ]; then \
+		echo "$(YELLOW)⚠️  planner.md가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_AGENTS_DIR)/planner.md"; \
+	elif [ -e "$(CLAUDE_AGENTS_DIR)/planner.md" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_AGENTS_DIR)/planner.md가 일반 파일로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_AGENTS_DIR)/planner.md $(CLAUDE_AGENTS_DIR)/planner.md.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/planner.md" "$(CLAUDE_AGENTS_DIR)/planner.md"
+	@echo "$(GREEN)✅ planner.md 설치 완료$(NC)"
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/implementer.md" ]; then \
+		echo "$(YELLOW)⚠️  implementer.md가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_AGENTS_DIR)/implementer.md"; \
+	elif [ -e "$(CLAUDE_AGENTS_DIR)/implementer.md" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_AGENTS_DIR)/implementer.md가 일반 파일로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_AGENTS_DIR)/implementer.md $(CLAUDE_AGENTS_DIR)/implementer.md.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/implementer.md" "$(CLAUDE_AGENTS_DIR)/implementer.md"
+	@echo "$(GREEN)✅ implementer.md 설치 완료$(NC)"
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/reviewer.md" ]; then \
+		echo "$(YELLOW)⚠️  reviewer.md가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_AGENTS_DIR)/reviewer.md"; \
+	elif [ -e "$(CLAUDE_AGENTS_DIR)/reviewer.md" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_AGENTS_DIR)/reviewer.md가 일반 파일로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_AGENTS_DIR)/reviewer.md $(CLAUDE_AGENTS_DIR)/reviewer.md.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/reviewer.md" "$(CLAUDE_AGENTS_DIR)/reviewer.md"
+	@echo "$(GREEN)✅ reviewer.md 설치 완료$(NC)"
+	@echo ""
+	@echo "$(GREEN)🎉 글로벌 스킬 및 서브에이전트 설치 완료!$(NC)"
 	@echo ""
 	@echo "$(BLUE)설치된 항목:$(NC)"
 	@echo "  • ~/.claude/skills/plan → skill-plan/"
 	@echo "  • ~/.claude/skills/implement → skill-implement/"
 	@echo "  • ~/.claude/skills/ai-dev-tasks → 전체 리소스 (scripts, docker 등)"
+	@echo "  • ~/.claude/agents/planner.md → .claude/agents/planner.md"
+	@echo "  • ~/.claude/agents/implementer.md → .claude/agents/implementer.md"
+	@echo "  • ~/.claude/agents/reviewer.md → .claude/agents/reviewer.md"
 	@echo ""
 	@echo "$(BLUE)다음 단계:$(NC)"
 	@echo "  1. C++ 프로젝트에 Docker 리소스 링크: make install-project PROJECT_PATH=/path/to/project"
-	@echo "  2. Claude Code에서 /skill 명령어로 확인"
-	@echo "  3. 스크립트 실행: ~/.claude/skills/ai-dev-tasks/scripts/check-prerequisites.sh"
+	@echo "  2. Claude Code에서 스킬 확인: /skill"
+	@echo "  3. 서브에이전트 사용:"
+	@echo "     Task(subagent_type='general-purpose',"
+	@echo "          prompt='~/.claude/agents/planner.md 지침을 따라 PLAN.md를 작성하세요.')"
+	@echo "  4. 스크립트 실행: ~/.claude/skills/ai-dev-tasks/scripts/check-prerequisites.sh"
 	@echo ""
 
 # Install project resources
@@ -219,8 +260,26 @@ uninstall-global:
 	else \
 		echo "$(YELLOW)⚠️  ai-dev-tasks가 링크로 존재하지 않습니다.$(NC)"; \
 	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/planner.md" ]; then \
+		rm "$(CLAUDE_AGENTS_DIR)/planner.md" && \
+		echo "$(GREEN)✅ planner.md 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  planner.md가 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/implementer.md" ]; then \
+		rm "$(CLAUDE_AGENTS_DIR)/implementer.md" && \
+		echo "$(GREEN)✅ implementer.md 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  implementer.md가 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/reviewer.md" ]; then \
+		rm "$(CLAUDE_AGENTS_DIR)/reviewer.md" && \
+		echo "$(GREEN)✅ reviewer.md 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  reviewer.md가 링크로 존재하지 않습니다.$(NC)"; \
+	fi
 	@echo ""
-	@echo "$(GREEN)✅ 글로벌 스킬 제거 완료$(NC)"
+	@echo "$(GREEN)✅ 글로벌 스킬 및 서브에이전트 제거 완료$(NC)"
 	@echo ""
 
 # Uninstall project resources
@@ -294,6 +353,44 @@ check-global:
 		fi; \
 	else \
 		echo "$(RED)❌ ai-dev-tasks 리소스: 설치되지 않음$(NC)"; \
+	fi
+	@echo ""
+	@echo "$(BLUE)서브에이전트 확인:$(NC)"
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/planner.md" ]; then \
+		PLANNER_TARGET=$$(readlink "$(CLAUDE_AGENTS_DIR)/planner.md"); \
+		if [ "$$PLANNER_TARGET" = "$(AI_DEV_TASKS_DIR)/.claude/agents/planner.md" ]; then \
+			echo "$(GREEN)✅ planner.md: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/planner.md → $$PLANNER_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  planner.md: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/planner.md → $$PLANNER_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ planner.md: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/implementer.md" ]; then \
+		IMPLEMENTER_TARGET=$$(readlink "$(CLAUDE_AGENTS_DIR)/implementer.md"); \
+		if [ "$$IMPLEMENTER_TARGET" = "$(AI_DEV_TASKS_DIR)/.claude/agents/implementer.md" ]; then \
+			echo "$(GREEN)✅ implementer.md: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/implementer.md → $$IMPLEMENTER_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  implementer.md: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/implementer.md → $$IMPLEMENTER_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ implementer.md: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/reviewer.md" ]; then \
+		REVIEWER_TARGET=$$(readlink "$(CLAUDE_AGENTS_DIR)/reviewer.md"); \
+		if [ "$$REVIEWER_TARGET" = "$(AI_DEV_TASKS_DIR)/.claude/agents/reviewer.md" ]; then \
+			echo "$(GREEN)✅ reviewer.md: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/reviewer.md → $$REVIEWER_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  reviewer.md: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/reviewer.md → $$REVIEWER_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ reviewer.md: 설치되지 않음$(NC)"; \
 	fi
 	@echo ""
 
