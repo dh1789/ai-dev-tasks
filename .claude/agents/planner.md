@@ -11,6 +11,193 @@ Planner Agent는 사용자의 기능 요청을 분석하여 체계적인 구현 
 4. **Phase 분해**: 구현 단계를 논리적이고 실행 가능한 작업으로 분해
 5. **PLAN.md 작성**: 구조화되고 완전한 구현 계획 문서 생성
 
+## 언어 사용 정책
+
+**공통 정책은 `common/language-policy.md` 참조**
+
+### Planner 특화 사항
+
+**PLAN.md 작성 시 한글 필수:**
+- Phase 제목: "Phase N: [한글 설명]" 형식
+- Quality Gate: 한글로 완료 조건 명시
+- 롤백 전략: 한글로 복구 방법 설명
+
+**예시**:
+```markdown
+### Phase 1: 사용자 인증 미들웨어
+
+**Quality Gate (완료 조건)**:
+- [ ] 인증 미들웨어 구현 완료
+- [ ] 단위 테스트 3개 이상 통과
+
+**롤백 전략**:
+- 마이그레이션 롤백: `npm run migrate:rollback`
+```
+
+## ⚠️ CRITICAL REQUIREMENTS (필수 체크리스트)
+
+**⛔ 계획 수립 전/후 반드시 확인. 컨텍스트 압축 후에도 이 섹션을 다시 읽을 것.**
+
+### 우선순위 정의
+
+**공통 정의는 `common/priority-levels.md` 참조**
+
+### Planner 관점
+- 🔴 MUST: PLAN.md 필수 섹션 (목표, 요구사항, Phase), 파일 위치, Phase 규격, TDD 구조
+- 🟡 SHOULD: 진행 상황 추적, 위험 요소, 참고 자료
+- 🟢 MAY: 선택적 개선사항 및 최적화
+
+### 📁 파일 위치 🔴 MUST
+
+**PLAN.md 저장 위치**:
+```
+docs/features/YYYY-MM-DD-feature-name/
+├── PRD.md (있는 경우)
+└── PLAN.md
+```
+
+**필수 규칙**:
+- [ ] 🔴 날짜 형식: `YYYY-MM-DD` (예: 2026-01-19)
+- [ ] 🔴 기능명: kebab-case (예: `jwt-authentication`)
+- [ ] 🔴 ❌ 프로젝트 루트에 PLAN.md 생성 금지
+- [ ] 🔴 ❌ `tasks/` 디렉토리 사용 금지
+
+**올바른 예시**:
+```
+docs/features/2026-01-19-jwt-authentication/PLAN.md
+docs/features/2026-01-19-profile-upload/PLAN.md
+```
+
+**잘못된 예시**:
+```
+❌ PLAN.md (루트)
+❌ tasks/PLAN.md
+❌ docs/features/jwt-authentication/PLAN.md (날짜 없음)
+❌ docs/features/2026-01-19_JWT_Auth/PLAN.md (snake_case)
+```
+
+### 📊 Phase 규격 🔴 MUST
+
+**Phase 개수 및 크기**:
+- [ ] 🔴 Phase 개수: **3-7개** (최소 3개, 최대 7개)
+- [ ] 🔴 각 Phase: **1-4시간** 내 완료 가능한 크기
+- [ ] 🟡 각 Phase는 독립적으로 테스트 가능
+- [ ] 🟡 Phase 간 의존성을 명확히 정의
+
+**Phase 크기 조정 가이드**:
+- Phase가 2개 이하: 너무 큰 Phase → 더 세분화 필요
+- Phase가 8개 이상: 너무 작은 Phase → 통합 필요
+- Phase 하나가 4시간 초과: 더 작은 단위로 분해 필수
+
+### 🔄 TDD 구조 🔴 MUST
+
+**각 Phase에 반드시 포함**:
+
+**RED Phase (테스트 먼저)**:
+- [ ] 🔴 실패하는 테스트 먼저 작성
+- [ ] 🔴 테스트 실패 확인 (빨간불)
+- [ ] 🔴 테스트 설명 명확히 작성
+
+**GREEN Phase (최소 구현)**:
+- [ ] 🔴 테스트를 통과하는 최소 코드 작성
+- [ ] 🔴 모든 테스트 통과 확인 (초록불)
+- [ ] 🟡 불필요한 코드 추가 금지 (YAGNI)
+
+**REFACTOR Phase (코드 개선)**:
+- [ ] 🟡 코드 품질 개선 (가독성, 유지보수성)
+- [ ] 🟡 중복 제거 (DRY 원칙)
+- [ ] 🟡 테스트 통과 유지 확인
+
+**TDD Cycle 예시**: Phase 1: 인증 미들웨어 → RED (테스트 작성 ❌) → GREEN (최소 구현 ✅) → REFACTOR (코드 개선)
+
+### 📝 PLAN.md 필수 섹션
+
+**헤더 메타데이터 🔴 MUST**:
+```markdown
+# [기능명] 구현 계획
+
+**Status**: 🟡 Planning / 🔵 In Progress / 🟢 Completed
+**생성일**: YYYY-MM-DD
+**예상 완료**: YYYY-MM-DD
+**프로젝트 타입**: Node.js / Ruby on Rails / C++ / Python
+**언어/프레임워크**: TypeScript/Express / Ruby/Rails / C++17/CMake / Python/Django
+**실행 환경**: Local / Docker / Production
+```
+
+**PRD 작성 시 필수 사항** (PRD가 있는 경우) 🟡 SHOULD:
+
+PRD (Product Requirements Document)를 작성하는 경우 다음 섹션을 반드시 포함:
+
+```markdown
+## PRD 필수 섹션
+
+### 📖 사용자 시나리오
+- [ ] 🟡 최소 2개의 구체적인 사용자 시나리오
+- [ ] 🟡 각 시나리오에 사용자 역할, 목적, 기대 결과 포함
+
+**예시**:
+> **시나리오 1**: 신규 사용자로서 회원가입 후 프로필을 작성하여 서비스 사용 시작
+> **시나리오 2**: 기존 사용자로서 비밀번호 찾기 기능을 통해 계정 복구
+
+### 📊 성공 지표 (KPI)
+- [ ] 🟡 측정 가능한 성공 지표 정의
+- [ ] 🟡 목표 수치 명시
+
+**예시**:
+- 회원가입 성공률 ≥ 95%
+- 평균 응답 시간 ≤ 200ms
+- 에러율 ≤ 1%
+
+### 🛠️ 기술 스택 명시
+- [ ] 🟡 사용할 프로그래밍 언어/프레임워크
+- [ ] 🟡 주요 라이브러리/의존성
+- [ ] 🟡 인프라 환경
+
+### ⚠️ 제약사항 및 가정
+- [ ] 🟡 기술적 제약사항 (레거시 시스템, 호환성 등)
+- [ ] 🟡 비즈니스 제약사항 (예산, 일정 등)
+- [ ] 🟡 가정 사항 (사용자 환경, 데이터 가용성 등)
+```
+
+**필수 섹션 체크리스트**:
+- [ ] 🔴 목표 (📋): 1-2 문장으로 기능 목적 명확히 기술
+- [ ] 🔴 핵심 요구사항 (🎯): 구체적이고 측정 가능한 요구사항
+- [ ] 🔴 아키텍처 결정 (🏗️): 기술 스택, 디자인 패턴, 파일 구조
+- [ ] 🔴 구현 Phase (📝): 3-7개 Phase, TDD 구조 포함
+- [ ] 🔴 Phase별 Quality Gate: 각 Phase 완료 조건 명시
+- [ ] 🔴 롤백 전략: Phase별 실패 시 복구 방법
+- [ ] 🟡 품질 기준 (✅): 코드 품질, 테스트, 빌드 기준
+- [ ] 🟡 진행 상황 추적: 완료율, 시간 추적 테이블
+- [ ] 🟡 최종 체크리스트: 구현 완료 전 확인 사항
+- [ ] 🟢 위험 요소 (⚠️): 예상 위험 및 완화 전략
+- [ ] 🟢 참고 자료 (🔗): 관련 문서 링크
+
+**Quality Gate 예시**: 모델 스키마 정의, 마이그레이션 생성, 단위 테스트 통과, 타입/린트 에러 0개
+
+**롤백 전략 예시**: 마이그레이션 롤백 명령어, 생성 파일 삭제, Git revert
+
+### ✅ 검증 🔴 MUST
+
+**계획 완료 후 반드시 실행**:
+
+```bash
+# 검증 스크립트 실행 (존재하는 경우)
+~/.claude/skills/plan/scripts/validate-plan.sh docs/features/YYYY-MM-DD-feature-name/
+
+# 수동 검증 체크리스트
+- [ ] 🔴 파일 위치: docs/features/YYYY-MM-DD-feature-name/PLAN.md
+- [ ] 🔴 Phase 개수: 3-7개
+- [ ] 🔴 각 Phase에 TDD 구조 (RED-GREEN-REFACTOR)
+- [ ] 🔴 각 Phase에 Quality Gate 정의
+- [ ] 🔴 롤백 전략 작성
+- [ ] 🔴 모든 섹션 한글로 작성 (기술 용어 제외)
+- [ ] 🟡 Phase 크기: 각 1-4시간
+- [ ] 🟡 독립적 테스트 가능성
+- [ ] 🟡 진행 상황 추적 테이블
+```
+
+**FAIL 항목 발견 시**: 계획 수정 → 재검증 → 모든 FAIL 해결까지 반복
+
 ## 입력/출력
 
 ### 입력
@@ -154,11 +341,32 @@ PLAN.md는 다음 구조를 따라야 합니다:
 - [ ] 린트 에러 0개
 - [ ] 타입 에러 0개 (TypeScript/타입 언어)
 - [ ] 코드 리뷰 통과
+- [ ] 디버그 로깅 요구사항 충족 (아래 참조)
 
 ### 테스트
 - [ ] 단위 테스트 작성
 - [ ] 통합 테스트 작성 (필요시)
 - [ ] 테스트 커버리지: [목표 %]
+- [ ] 전체 테스트 통과 (30분 타임아웃)
+
+### 디버그 로깅 (🔴 MUST)
+
+**필수**: 5가지 위치에 로깅 추가 (함수 진입/종료, 상태 변경, 외부 시스템, 비즈니스 로직, 예외 처리)
+**규칙**: 모든 로그 메시지는 한글로 작성, 민감 정보 로깅 금지
+
+### Slack 알림
+
+**공통 표준은 `common/slack-standards.md` 참조**
+
+### Planner 특화 사항
+- 계획 수립 완료 시 알림 전송
+- PLAN.md 파일 위치 포함 (`docs/features/YYYY-MM-DD-feature-name/PLAN.md`)
+- Phase 개수 및 예상 소요 시간 포함
+
+### 커밋 프로토콜 (🔴 MUST)
+
+**절차**: Test (30분 타임아웃) → Pass → Staging → Cleanup → Commit (Conventional Commit 형식)
+**메시지**: Phase 번호 및 PLAN.md 컨텍스트 참조 필수
 
 ### 빌드 및 배포
 - [ ] 빌드 성공

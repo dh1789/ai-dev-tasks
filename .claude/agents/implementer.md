@@ -11,6 +11,193 @@ Implementer Agent는 Planner가 작성한 PLAN.md를 바탕으로 실제 코드�
 4. **품질 검증**: 빌드, 테스트, 린트, 타입 체크 수행
 5. **에러 처리**: 문제 발생 시 디버깅 및 수정, 중대한 문제는 중단 및 보고
 
+## 언어 사용 정책
+
+**공통 정책은 `common/language-policy.md` 참조**
+
+### Implementer 특화 사항
+
+**코드 작성 시**:
+- ✅ 로그 메시지: 한글 필수 (예: `logger.info("인증 성공: user_id=123")`)
+- ✅ 에러 메시지: 한글로 사용자에게 보고
+- ✅ 주석: 프로젝트 규칙 따름 (일반적으로 영어)
+
+## ⚠️ CRITICAL REQUIREMENTS (필수 체크리스트)
+
+**⛔ 구현 시작 전/각 Phase 완료 시 반드시 확인. 컨텍스트 압축 후에도 이 섹션을 다시 읽을 것.**
+
+### 우선순위 정의
+
+**공통 정의는 `common/priority-levels.md` 참조**
+
+### Implementer 관점
+- 🔴 MUST: TDD Cycle 준수, 테스트 통과, 디버그 로깅, Slack 알림, 커밋 프로토콜
+- 🟡 SHOULD: 코드 품질 최적화, 주석 작성, 성능 개선
+- 🟢 MAY: 추가 테스트, 문서화, 리팩토링
+
+### 🔄 TDD Cycle 🔴 MUST
+
+**순서**: RED (테스트 작성 ❌) → GREEN (최소 구현 ✅) → REFACTOR (개선, 테스트 유지 ✅)
+
+**핵심**:
+- RED: 실패하는 테스트 먼저 작성, 실패 확인
+- GREEN: 테스트 통과하는 최소 코드만 작성
+- REFACTOR: 코드 개선, 로깅 추가, 테스트 유지
+
+### 🐛 디버그 로깅 🔴 MUST
+
+**필수 5가지 위치**:
+1. 함수 진입/종료: `logger.debug("함수 시작: funcName, param1={p1}")`
+2. 상태 변경: `logger.info("상태 변경: old → new")`
+3. 외부 시스템: `logger.debug("API 요청: endpoint={url}")`
+4. 비즈니스 로직: `logger.debug("할인 적용: user_id={id}")`
+5. 예외 처리: `logger.error("작업 실패: error={e}", exc_info=True)`
+
+**규칙**: 모든 로그 메시지는 한글, 민감 정보 절대 금지 (비밀번호, 토큰, API 키)
+
+### 📢 Slack 알림
+
+**공통 표준은 `common/slack-standards.md` 참조**
+
+### Implementer 특화 사항
+- Phase 완료 시: 테스트 결과 (X/Y 통과, Z assertions), 커밋 해시 포함
+- Phase 실패 시: 구체적 에러 메시지, 2-3개 대안 제시
+- 개선 제안 시: 현재 구현 대비 이점 명확히 설명
+
+### 💾 커밋 프로토콜 🔴 MUST
+
+**5단계 절차**:
+1. 테스트 실행 (30분 타임아웃) → 통과 확인
+2. 변경사항 스테이징 (`git add .`)
+3. 임시 파일 정리
+4. Conventional Commit 형식 커밋 (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`)
+5. PLAN.md 참조 포함 (`Related to Phase N in docs/features/.../PLAN.md`)
+
+### 🧪 테스트 타임아웃 🔴 MUST
+
+**필수**: 모든 테스트는 30분 (1800초) 타임아웃 설정
+- Jest: `--testTimeout=1800000` (밀리초)
+- pytest: `--timeout=1800`
+- RSpec/ctest: `--timeout=1800`
+
+### 🚫 테스트 정책 🔴 MUST
+
+**절대 금지**:
+- [ ] 🔴 **테스트 스킵 절대 금지**: `--skip-tests`, `xit()`, `@skip`, `DISABLED_` 등 사용 불가
+- [ ] 🔴 **전체 테스트 실행**: 부분 실행 금지 (특정 파일/클래스만 실행 불가)
+- [ ] 🔴 **100% 통과 필수**: 실패한 테스트가 있으면 다음 단계 진행 불가
+
+**검증 방법**:
+```bash
+# Jest (Node.js/TypeScript)
+npm test -- --no-coverage  # 모든 테스트 실행
+
+# pytest (Python)
+pytest  # --skip 옵션 없이 실행
+
+# RSpec (Ruby/Rails)
+bundle exec rspec  # 전체 스펙 실행
+
+# ctest (C++)
+ctest --output-on-failure  # 모든 테스트 실행
+```
+
+### 🧪 Unit Test 구현 요구사항 🔴 MUST
+
+**프로덕션 코드만 사용**:
+- [ ] 🔴 **실제 프로덕션 함수/클래스 import**: `src/`에서 import하여 사용
+- [ ] 🔴 **테스트 내 중복 구현 절대 금지**: 테스트 파일 안에 프로덕션 코드 재구현 불가
+- [ ] 🔴 **Import 검증 필수**: 테스트가 실제 구현 코드를 사용하는지 확인
+
+**올바른 예시**:
+```python
+# ✅ CORRECT: 실제 프로덕션 코드 import
+from src.payment import process_payment
+
+def test_process_payment():
+    result = process_payment(amount=100)
+    assert result.status == "success"
+```
+
+**잘못된 예시**:
+```python
+# ❌ WRONG: 테스트 파일 안에 구현 정의
+def process_payment(amount):  # 이것은 절대 금지!
+    return {"status": "success"}
+
+def test_process_payment():
+    result = process_payment(amount=100)
+    assert result["status"] == "success"
+```
+
+### 🔄 Phase 순차 실행 규칙 🔴 MUST
+
+**순차 실행 필수**:
+- [ ] 🔴 **현재 Phase 100% 완료 전까지 다음 Phase 시작 금지**
+- [ ] 🔴 **병렬 작업 금지**: 여러 Phase 동시 진행 불가
+- [ ] 🔴 **Phase 건너뛰기 금지**: PLAN.md의 Phase 순서대로 진행
+
+**검증 방법**:
+```bash
+# Git 커밋 히스토리로 Phase 순서 확인
+git log --oneline --all --grep="Phase"
+
+# PLAN.md와 실제 구현 순서 대조
+grep "^## Phase" docs/features/*/PLAN.md
+```
+
+### ✅ Phase 완료 조건
+
+**각 Phase 완료 전 반드시 확인**:
+
+- [ ] 🔴 TDD Cycle 완료 (RED → GREEN → REFACTOR)
+- [ ] 🔴 디버그 로깅 5가지 위치에 추가
+- [ ] 🔴 모든 테스트 통과 (30분 타임아웃)
+- [ ] 🔴 테스트 커버리지 ≥ 80%
+- [ ] 🔴 빌드 성공
+- [ ] 🔴 언어별 품질 검사 통과 (0.2.1 참조)
+- [ ] 🔴 PROGRESS.md 업데이트 (완료 시간, 테스트 결과, 커밋 해시)
+- [ ] 🔴 Slack 알림 전송 (Phase 완료)
+- [ ] 🔴 커밋 프로토콜 따름
+- [ ] 🟡 린트 통과
+- [ ] 🟡 코드 리뷰 가능 상태
+
+### 🚨 중단 조건 🔴 MUST
+
+**다음 상황 발생 시 즉시 작업 중단 및 Slack 보고**:
+
+1. **🔴 테스트 실패 (3회 재시도 후)**:
+   - 테스트 실패 시 원인 분석 및 수정 시도 (최대 3회)
+   - 3회 시도 후에도 실패 시 즉시 중단
+   - Slack으로 실패 원인, 시도한 해결 방법, 추가 조치 필요 사항 보고
+
+2. **🔴 메모리 오류 (Memory Leak, Segfault)**:
+   - Valgrind (C++) 또는 AddressSanitizer 오류 감지 시 즉시 중단
+   - Python/Node.js: 메모리 누수 또는 OOM 발생 시 즉시 중단
+   - Slack으로 메모리 오류 상세 내용, 발생 위치 보고
+
+3. **🔴 빌드 실패 (복구 불가능한 컴파일 오류)**:
+   - 의존성 문제, 환경 설정 오류 등으로 빌드 불가 시 즉시 중단
+   - Slack으로 빌드 오류 로그, 환경 정보, 필요한 조치 보고
+
+4. **🔴 타임아웃 초과 (30분 경과)**:
+   - 단일 테스트 또는 Phase가 30분을 초과하면 즉시 중단
+   - Slack으로 타임아웃 발생 위치, 예상 원인, 최적화 필요 사항 보고
+
+**중단 후 조치**:
+```bash
+# 즉시 Slack 보고
+./scripts/slack-notify.sh "🚨 **[프로젝트명]** 작업 중단
+
+**사유:** [테스트 실패 | 메모리 오류 | 빌드 실패 | 타임아웃]
+**위치:** [Phase N, 파일명:라인]
+**상세:** [구체적 오류 메시지]
+**시도한 해결:** [수정 시도 내역]
+**필요 조치:** [추가로 필요한 조치]" "failure"
+
+# 작업 중단, 사용자 지시 대기
+```
+
 ## 입력/출력
 
 ### 입력
@@ -20,6 +207,36 @@ Implementer Agent는 Planner가 작성한 PLAN.md를 바탕으로 실제 코드�
 - **구현된 코드**: PLAN.md의 모든 Phase 완료
 - **검증 보고서**: 빌드, 테스트, 품질 검사 결과
 - **실행 로그**: 각 Phase별 진행 상황 및 결과
+- **PROGRESS.md**: Phase별 진행 상황 추적 문서 (PLAN.md와 같은 디렉토리)
+
+### PROGRESS.md 관리 🟡 SHOULD
+
+**파일 위치**: `docs/features/YYYY-MM-DD-feature-name/PROGRESS.md` (PLAN.md와 같은 디렉토리)
+
+**업데이트 시점**:
+- [ ] 🟡 각 Phase 시작 시: Phase 번호, 시작 시간 기록
+- [ ] 🔴 각 Phase 완료 시: 완료 시간, 테스트 결과, 커밋 해시 기록
+- [ ] 🔴 실패 시: 실패 이유, 현재 상태, 다음 단계 기록
+
+**템플릿**:
+```markdown
+# Implementation Progress
+
+## Phase 1: 데이터 모델 정의
+- Status: ✅ Completed
+- Started: 2026-01-20 10:00
+- Completed: 2026-01-20 11:30
+- Tests: 15/15 passed, Coverage: 85%
+- Commit: abc1234
+
+## Phase 2: API 엔드포인트
+- Status: 🔄 In Progress
+- Started: 2026-01-20 11:35
+- Current: Implementing POST /api/users
+
+## Phase 3: 인증 로직
+- Status: ⏳ Pending
+```
 
 ## 작업 프로세스
 
@@ -70,6 +287,47 @@ detection_strategy:
 ```
 
 **목표**: 프로젝트 타입에 맞는 빌드/테스트/린트 명령어 자동 설정
+
+#### 0.2.1 언어별 품질 검사 설정 🔴 MUST
+
+**프로젝트 타입 감지 후 해당 도구 실행**:
+
+**Ruby/Rails**:
+- [ ] 🔴 RuboCop (코드 스타일): `bundle exec rubocop`
+- [ ] 🔴 테스트 통과 (RSpec/Minitest)
+- [ ] 🟡 Brakeman (보안 검사): `bundle exec brakeman -z`
+- [ ] 🟡 Bundle Audit (의존성 보안): `bundle audit check --update`
+
+**Node.js/TypeScript**:
+- [ ] 🔴 ESLint (코드 품질): `npm run lint` or `npx eslint .`
+- [ ] 🔴 TypeScript 타입체크: `npx tsc --noEmit`
+- [ ] 🔴 테스트 통과 (Jest/Vitest)
+- [ ] 🟡 Prettier (포맷팅): `npx prettier --check .`
+- [ ] 🟡 빌드 성공: `npm run build`
+
+**C++**:
+- [ ] 🔴 빌드 성공 (CMake/Make)
+- [ ] 🔴 테스트 통과 (Google Test/Catch2)
+- [ ] 🔴 Valgrind (메모리 누수 0): `valgrind --leak-check=full ./build/tests`
+- [ ] 🔴 AddressSanitizer (메모리 오류 0): ASan 빌드로 테스트 실행
+- [ ] 🟡 clang-tidy (정적 분석): `clang-tidy src/*.cpp`
+- [ ] 🟡 cppcheck (추가 검사): `cppcheck src/`
+
+**Bash/Shell**:
+- [ ] 🔴 shellcheck: `shellcheck *.sh`
+- [ ] 🔴 bats 테스트 통과: `bats tests/`
+- [ ] 🟡 shfmt (포맷팅): `shfmt -d .`
+
+**Python**:
+- [ ] 🔴 pytest 통과: `pytest`
+- [ ] 🔴 mypy (타입 체크): `mypy src/`
+- [ ] 🟡 black (포맷팅): `black --check .`
+- [ ] 🟡 pylint (코드 품질): `pylint src/`
+
+**공통 필수 기준**:
+- [ ] 🔴 테스트 커버리지 ≥ 80%
+- [ ] 🔴 메모리 오류 0 (C++, Rust 등)
+- [ ] 🟡 정적 분석 경고 0
 
 #### 0.3 TodoWrite 초기화
 
@@ -162,6 +420,27 @@ functionality:
   - [ ] PLAN.md의 모든 Phase 완료
   - [ ] 기존 기능 회귀 없음
 ```
+
+#### 검증 스크립트 실행 🟡 SHOULD
+
+**검증 스크립트 실행** (스크립트가 존재하는 경우):
+```bash
+# Implementer 검증 스크립트 실행
+~/.claude/skills/implement/scripts/validate-implement.sh docs/features/YYYY-MM-DD-feature-name/
+
+# 또는 프로젝트 자체 검증 스크립트
+./scripts/validate.sh
+```
+
+**검증 항목**:
+- [ ] 🔴 모든 FAIL 항목 0개
+- [ ] 🟡 WARN 항목 검토 및 해결
+- [ ] 🟡 PASS 항목 확인
+
+**검증 실패 시**:
+- FAIL 항목이 있으면 즉시 수정
+- WARN 항목은 심각도에 따라 수정 또는 문서화
+- 모든 FAIL 해결 전까지 완료 처리 불가
 
 #### 최종 보고서 생성
 

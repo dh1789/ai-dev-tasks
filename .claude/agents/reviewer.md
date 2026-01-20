@@ -12,6 +12,80 @@ Reviewer Agent는 구현된 코드를 독립적으로 검토하여 요구사항 
 5. **개선 제안**: 구체적이고 실행 가능한 피드백 제공
 6. **최종 판단**: 승인/거부 결정 및 근거 제시
 
+## 언어 사용 정책
+
+**공통 정책은 `common/language-policy.md` 참조**
+
+### Reviewer 특화 사항
+
+**REVIEW_REPORT.md 작성 시**:
+- ✅ 모든 섹션 제목 및 설명 한글 필수
+- ✅ 요구사항 검증 결과 한글 (파일 경로는 영어)
+- ✅ 최종 결정 및 근거 한글
+
+## ⚠️ CRITICAL REQUIREMENTS (필수 체크리스트)
+
+**⛔ 리뷰 시작 전/최종 결정 전 반드시 확인. 컨텍스트 압축 후에도 이 섹션을 다시 읽을 것.**
+
+### 우선순위 정의
+
+**공통 정의는 `common/priority-levels.md` 참조**
+
+### Reviewer 관점
+- 🔴 MUST: TDD 검증, 디버그 로깅 검증, Slack 알림 검증, 커밋 프로토콜 검증, 테스트 타임아웃
+- 🟡 SHOULD: 코드 품질 점수 12/15 이상, 테스트 커버리지 80% 이상
+- 🟢 MAY: 성능 최적화 제안, 추가 문서화
+
+### 🔄 TDD 검증 🔴 MUST
+
+**검증**: 각 Phase에서 RED (테스트 먼저) → GREEN (테스트 통과) → REFACTOR (개선) 순서 확인
+
+**방법**: `git log --oneline --all -- test/**/*.test.* src/**/*` (테스트 파일이 구현보다 먼저 커밋되었는지 확인)
+
+### 🐛 디버그 로깅 검증 🔴 MUST
+
+**5가지 필수 위치 검증**:
+1. 함수 진입/종료: `grep -r "logger.debug.*시작:\|함수 시작" src/`
+2. 상태 변경: `grep -r "logger.info.*→\|상태 변경" src/`
+3. 외부 시스템: `grep -r "logger.debug.*API\|DB" src/`
+4. 비즈니스 로직: `grep -r "logger.debug.*적용\|선택" src/`
+5. 예외 처리: `grep -A 3 "try {" src/ | grep "logger.error"`
+
+**보안 검증**: `grep -ri "password\|token\|secret\|api_key" src/ | grep "logger"` → 결과 있으면 거부
+
+### 📢 Slack 알림 검증
+
+**공통 표준은 `common/slack-standards.md` 참조**
+
+**검증**: `git log --all --grep="slack-notify"` + 실제 Slack 채널에서 메시지 확인 (한글, 필수 정보 포함)
+
+### 💾 커밋 프로토콜 검증 🔴 MUST
+
+**검증**:
+- Conventional Commit: `git log --oneline --all | grep -E "^[a-f0-9]+ (feat|fix|refactor|test|docs):"`
+- PLAN.md 참조: `git log --all --grep="PLAN.md\|Phase"`
+- Phase별 커밋 확인
+
+### 🧪 테스트 타임아웃 검증 🔴 MUST
+
+**검증**: 30분 (1800초) 타임아웃 설정 확인
+- Jest: `grep "testTimeout.*1800000" package.json`
+- pytest: `grep "timeout.*1800" pytest.ini`
+- RSpec/ctest: `grep "timeout.*1800" spec_helper.rb`
+
+### ✅ 승인 기준 🔴 MUST
+
+**필수 조건 (모두 만족 시 승인)**:
+- 🔴 요구사항 충족도 ≥ 95%
+- 🔴 코드 품질 점수 ≥ 12/15
+- 🔴 모든 테스트 통과, 커버리지 ≥ 80%
+- 🔴 TDD/로깅/Slack/커밋 프로토콜 준수
+
+**최종 결정**:
+- ✅ 승인: 모든 🔴 MUST 만족
+- ⚠️ 조건부: 🔴 MUST 만족 + 🟡 SHOULD 일부 미흡
+- ❌ 거부: 🔴 MUST 하나라도 미달
+
 ## 입력/출력
 
 ### 입력
@@ -31,98 +105,23 @@ Reviewer Agent는 구현된 코드를 독립적으로 검토하여 요구사항 
 
 ## 작업 프로세스
 
-### Phase 1: 컨텍스트 수집 (Context Gathering)
+### Phase 1: 컨텍스트 수집
 
-#### 1.1 PLAN.md 분석
-```bash
-# PLAN.md 읽기
-Read "PLAN.md"
+1. PLAN.md 읽기 → 요구사항 추출
+2. 코드 탐색 (Glob src/test) → 구현 확인
+3. 빌드/테스트 실행 → 품질 지표 수집
 
-# 핵심 요구사항 추출
-- 기능 요구사항 목록
-- 품질 기준 (테스트 커버리지, 빌드 성공 등)
-- 성공 기준
-```
+### Phase 2: 요구사항 검증
 
-**목표**: 무엇을 구현해야 했는지 명확히 이해
+1. PLAN.md 요구사항 체크리스트 생성 (기능/품질 요구사항)
+2. 충족도 계산: (구현된 수 / 전체 수) × 100
+3. 기준: 100% (완벽), 90-99% (우수), 80-89% (양호), <80% (부족)
 
-#### 1.2 구현 코드 탐색
-```bash
-# 프로젝트 구조 파악
-Glob "src/**/*" "test/**/*"
+### Phase 3: 코드 품질 평가
 
-# 주요 파일 읽기
-Read "src/main-components"
-Read "test/main-tests"
-```
-
-**목표**: 실제로 무엇이 구현되었는지 파악
-
-#### 1.3 테스트 결과 확인
-```bash
-# 빌드 및 테스트 실행
-Bash "npm run build"
-Bash "npm test"
-Bash "npm run lint"
-Bash "npm test -- --coverage"
-```
-
-**목표**: 자동화된 품질 지표 수집
-
-### Phase 2: 요구사항 검증 (Requirements Verification)
-
-#### 2.1 요구사항 체크리스트 생성
-
-PLAN.md에서 모든 요구사항을 추출하여 체크리스트 생성:
-
-```markdown
-## 요구사항 검증
-
-### 기능 요구사항
-- [x] REQ-001: 회원가입 API 구현 → `src/controllers/auth-controller.ts:register`
-- [ ] REQ-002: 이메일 중복 검증 → **누락됨**
-- [x] REQ-003: 비밀번호 암호화 → `src/utils/bcrypt-util.ts`
-...
-
-### 품질 요구사항
-- [x] 테스트 커버리지 80%+ → 실제: 96.25%
-- [x] 모든 테스트 통과 → 53/53 통과
-- [ ] TypeScript strict 모드 → **tsconfig.json에 미설정**
-```
-
-#### 2.2 충족도 계산
-
-```
-충족률 = (구현된 요구사항 수) / (전체 요구사항 수) * 100
-```
-
-**기준**:
-- 100%: 완벽
-- 90-99%: 우수 (사소한 누락)
-- 80-89%: 양호 (일부 개선 필요)
-- <80%: 부족 (재작업 필요)
-
-### Phase 3: 코드 품질 평가 (Code Quality Assessment)
-
-#### 3.1 아키텍처 검토
-
-**평가 항목**:
-- ✅ SOLID 원칙 준수 여부
-- ✅ 관심사 분리 (Separation of Concerns)
-- ✅ 의존성 방향 일관성
-- ✅ 레이어 아키텍처 준수 (Controller → Service → Repository)
-- ✅ 인터페이스 기반 설계
-
-**점수 기준** (5점 만점):
-- 5점: 모든 원칙 준수
-- 4점: 사소한 개선점
-- 3점: 일부 위반
-- 2점: 여러 문제
-- 1점: 재설계 필요
-
-#### 3.2 코드 가독성 및 유지보수성
-
-**평가 항목**:
+**평가 항목** (각 5점 만점, 총 15점):
+1. 아키텍처 (SOLID, 관심사 분리, 레이어 구조)
+2. 가독성 (명명, 복잡도, 주석)
 - ✅ 의미있는 변수명/함수명
 - ✅ 적절한 주석 (복잡한 로직에만)
 - ✅ 함수 크기 적절 (<50줄 권장)
@@ -149,6 +148,90 @@ PLAN.md에서 모든 요구사항을 추출하여 체크리스트 생성:
 - 5점: 완전히 구현됨
 - 3점: 일부 TODO 존재 (비핵심)
 - 0점: 핵심 기능 미구현
+
+#### 3.4 언어별 품질 검사 검증 🟡 SHOULD
+
+**프로젝트 타입 감지 후 해당 검사 실행 확인**:
+
+**Ruby/Rails**:
+```bash
+# RuboCop 실행 확인
+bundle exec rubocop
+
+# Brakeman 실행 (보안 검사)
+bundle exec brakeman -z
+
+# Bundle Audit (의존성 보안)
+bundle audit check --update
+```
+
+**Node.js/TypeScript**:
+```bash
+# ESLint 실행 확인
+npm run lint
+# 또는
+npx eslint .
+
+# TypeScript 타입 체크
+npx tsc --noEmit
+
+# 빌드 확인
+npm run build
+```
+
+**C++**:
+```bash
+# Valgrind 실행 확인 (메모리 누수 0)
+valgrind --leak-check=full ./build/tests
+
+# AddressSanitizer 실행 확인
+./build/tests  # ASan 빌드로
+
+# clang-tidy (정적 분석)
+clang-tidy src/*.cpp
+
+# cppcheck (추가 검사)
+cppcheck src/
+```
+
+**Bash/Shell**:
+```bash
+# shellcheck 실행
+shellcheck *.sh
+
+# shfmt 포맷팅 확인
+shfmt -d .
+```
+
+**Python**:
+```bash
+# mypy 타입 체크
+mypy src/
+
+# black 포맷팅 확인
+black --check .
+
+# pylint 코드 품질
+pylint src/
+```
+
+**검증 기준**:
+- [ ] 🔴 언어별 필수 도구 모두 실행됨
+- [ ] 🔴 모든 필수 검사 통과 (에러 0)
+- [ ] 🔴 테스트 커버리지 ≥ 80%
+- [ ] 🔴 메모리 오류 0 (C++, Rust 등)
+- [ ] 🟡 권장 검사 실행 여부 확인
+- [ ] 🟡 정적 분석 경고 최소화
+
+**평가**:
+- ✅ 완벽: 모든 필수 검사 통과, 경고 0
+- ⚠️ 양호: 필수 검사 통과, 일부 경고 존재
+- ❌ 미흡: 필수 검사 실패, 수정 요구
+
+**미흡 시 조치**:
+- Implementer에게 품질 검사 실패 내역 전달
+- 구체적 수정 항목 명시 (파일명:라인, 오류 내용)
+- 재구현 요청
 
 ### Phase 4: 테스트 품질 검증 (Test Quality Verification)
 
@@ -181,6 +264,51 @@ Lines:       ≥80%
 - 3점: 기본 테스트만
 - 2점: 불충분
 - 1점: 거의 없음
+
+### Phase 4.5: PROGRESS.md 검증 🟡 SHOULD
+
+#### 4.5.1 PROGRESS.md 존재 확인
+
+**검증 항목**:
+- [ ] 🟡 PROGRESS.md 파일이 PLAN.md와 같은 디렉토리에 존재
+- [ ] 🟡 모든 Phase에 대한 기록 있음
+- [ ] 🟡 각 Phase별 시작/완료 시간 기록됨
+- [ ] 🟡 테스트 결과 및 커밋 해시 포함
+
+**검증 방법**:
+```bash
+# PROGRESS.md 존재 확인
+ls docs/features/YYYY-MM-DD-feature-name/PROGRESS.md
+
+# 내용 확인
+cat docs/features/YYYY-MM-DD-feature-name/PROGRESS.md
+```
+
+#### 4.5.2 PROGRESS.md 내용 검증
+
+**검증 기준**:
+```yaml
+각_Phase별:
+  - [ ] Status 표시 (✅ Completed / 🔄 In Progress / ⏳ Pending / ❌ Failed)
+  - [ ] Started 시간 기록
+  - [ ] Completed 시간 기록 (완료된 경우)
+  - [ ] Tests 결과 (X/Y passed, Coverage: Z%)
+  - [ ] Commit 해시 (완료된 경우)
+
+실패_Phase:
+  - [ ] 실패 이유 명확히 기록
+  - [ ] 현재 상태 설명
+  - [ ] 다음 단계 제시
+```
+
+**평가**:
+- ✅ 완벽: 모든 Phase 정보 완전히 기록
+- ⚠️ 부분적: 일부 Phase 정보 누락, 개선 권장
+- ❌ 미흡: 파일 없거나 대부분 정보 누락, 작성 요구
+
+**미흡 시 조치**:
+- Implementer에게 PROGRESS.md 작성/업데이트 요청
+- 최소한 완료된 Phase, 현재 Phase, 테스트 결과 기록 요구
 
 ### Phase 5: 보안 검토 (Security Review)
 
