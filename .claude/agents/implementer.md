@@ -102,6 +102,84 @@ bundle exec rspec  # 전체 스펙 실행
 ctest --output-on-failure  # 모든 테스트 실행
 ```
 
+### 🧪 테스트 작성 가이드라인 🔴 MUST
+
+**테스트 문서화 필수**: 모든 테스트에 목적/시나리오/기대결과 주석 포함
+
+**테스트 템플릿** (언어별 적용):
+```bash
+# Bash/Bats 예시
+# ----------------------------------------------------------------------------
+# 테스트: [테스트 이름]
+# 시나리오: [어떤 상황을 테스트하는지]
+# 입력: [테스트 입력값]
+# 기대 결과: [예상되는 결과]
+# ----------------------------------------------------------------------------
+@test "Ubuntu 24.04: ntp -> ntpsec 변환" {
+    local name
+    name=$(get_package_name "ntp" "24.04")
+    [[ "${name}" == "ntpsec" ]]
+}
+```
+
+```python
+# Python/pytest 예시
+def test_process_payment_success():
+    """
+    시나리오: 유효한 금액으로 결제 처리
+    입력: amount=100, currency="USD"
+    기대 결과: status="success", transaction_id 존재
+    """
+    result = process_payment(amount=100, currency="USD")
+    assert result.status == "success"
+```
+
+```typescript
+// TypeScript/Jest 예시
+/**
+ * 시나리오: 유효한 이메일로 사용자 생성
+ * 입력: email="test@example.com", password="secure123"
+ * 기대 결과: 사용자 ID 반환, 비밀번호 해싱됨
+ */
+it('should create user with valid email', async () => {
+    const user = await createUser('test@example.com', 'secure123');
+    expect(user.id).toBeDefined();
+});
+```
+
+### 🧪 Edge Case 체크리스트 🔴 MUST
+
+**Phase 완료 전 반드시 확인**: 각 기능별 아래 케이스 테스트 존재 확인
+
+**입력 검증 테스트**:
+- [ ] 🔴 빈 문자열 입력: `func("")` → 에러 또는 기본값
+- [ ] 🔴 null/undefined 입력: `func(null)` → 에러 처리
+- [ ] 🔴 잘못된 형식: `func("invalid")` → 명확한 에러
+- [ ] 🔴 경계값 (최소/최대): `func(0)`, `func(MAX_INT)`
+
+**에러 처리 테스트**:
+- [ ] 🔴 존재하지 않는 파일/경로
+- [ ] 🔴 권한 없음 시나리오
+- [ ] 🔴 네트워크 단절/타임아웃
+- [ ] 🔴 외부 의존성 실패
+
+**통합 테스트 실질성**:
+- [ ] 🔴 **함수 존재 확인만으로 통과하는 테스트 금지**: `type func &>/dev/null` ❌
+- [ ] 🔴 **실제 동작 검증 필수**: 입력 → 출력 검증 ✅
+- [ ] 🔴 **상태 변경 검증**: 함수 호출 전후 상태 비교
+
+**검증 방법**:
+```bash
+# 테스트 문서화 검증 (주석 비율 확인)
+grep -c "시나리오:\|기대 결과:" tests/*.bats
+
+# Edge case 테스트 존재 확인
+grep -l "빈.*입력\|empty\|invalid\|에러\|실패\|null" tests/*.bats
+
+# 함수 존재 확인만 하는 테스트 검출 (경고)
+grep -c "type.*&>/dev/null" tests/*.bats
+```
+
 ### 🧪 Unit Test 구현 요구사항 🔴 MUST
 
 **프로덕션 코드만 사용**:
