@@ -38,7 +38,8 @@ help:
 	@echo "  $(YELLOW)make install$(NC)"
 	@echo "    글로벌 스킬 및 서브에이전트 설치"
 	@echo "    • 스킬: plan, implement → ~/.claude/skills/"
-	@echo "    • 서브에이전트: planner, implementer, reviewer → ~/.claude/agents/"
+	@echo "    • 서브에이전트: planner, implementer, reviewer, orchestrator → ~/.claude/agents/"
+	@echo "    • 공통 리소스: common/ → ~/.claude/agents/common/"
 	@echo "    • 리소스: ai-dev-tasks 전체 디렉토리 (scripts, docker 등)"
 	@echo ""
 	@echo "  $(YELLOW)make install-project PROJECT_PATH=/path/to/project$(NC)"
@@ -145,6 +146,26 @@ install-global:
 	fi
 	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/reviewer.md" "$(CLAUDE_AGENTS_DIR)/reviewer.md"
 	@echo "$(GREEN)✅ reviewer.md 설치 완료$(NC)"
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/orchestrator.md" ]; then \
+		echo "$(YELLOW)⚠️  orchestrator.md가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_AGENTS_DIR)/orchestrator.md"; \
+	elif [ -e "$(CLAUDE_AGENTS_DIR)/orchestrator.md" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_AGENTS_DIR)/orchestrator.md가 일반 파일로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_AGENTS_DIR)/orchestrator.md $(CLAUDE_AGENTS_DIR)/orchestrator.md.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/orchestrator.md" "$(CLAUDE_AGENTS_DIR)/orchestrator.md"
+	@echo "$(GREEN)✅ orchestrator.md 설치 완료$(NC)"
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/common" ]; then \
+		echo "$(YELLOW)⚠️  common이 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_AGENTS_DIR)/common"; \
+	elif [ -e "$(CLAUDE_AGENTS_DIR)/common" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_AGENTS_DIR)/common이 일반 디렉토리로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_AGENTS_DIR)/common $(CLAUDE_AGENTS_DIR)/common.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/common" "$(CLAUDE_AGENTS_DIR)/common"
+	@echo "$(GREEN)✅ common/ 디렉토리 설치 완료$(NC)"
 	@echo ""
 	@echo "$(GREEN)🎉 글로벌 스킬 및 서브에이전트 설치 완료!$(NC)"
 	@echo ""
@@ -155,6 +176,8 @@ install-global:
 	@echo "  • ~/.claude/agents/planner.md → .claude/agents/planner.md"
 	@echo "  • ~/.claude/agents/implementer.md → .claude/agents/implementer.md"
 	@echo "  • ~/.claude/agents/reviewer.md → .claude/agents/reviewer.md"
+	@echo "  • ~/.claude/agents/orchestrator.md → .claude/agents/orchestrator.md"
+	@echo "  • ~/.claude/agents/common/ → .claude/agents/common/"
 	@echo ""
 	@echo "$(BLUE)다음 단계:$(NC)"
 	@echo "  1. C++ 프로젝트에 Docker 리소스 링크: make install-project PROJECT_PATH=/path/to/project"
@@ -278,6 +301,18 @@ uninstall-global:
 	else \
 		echo "$(YELLOW)⚠️  reviewer.md가 링크로 존재하지 않습니다.$(NC)"; \
 	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/orchestrator.md" ]; then \
+		rm "$(CLAUDE_AGENTS_DIR)/orchestrator.md" && \
+		echo "$(GREEN)✅ orchestrator.md 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  orchestrator.md가 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/common" ]; then \
+		rm "$(CLAUDE_AGENTS_DIR)/common" && \
+		echo "$(GREEN)✅ common/ 디렉토리 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  common이 링크로 존재하지 않습니다.$(NC)"; \
+	fi
 	@echo ""
 	@echo "$(GREEN)✅ 글로벌 스킬 및 서브에이전트 제거 완료$(NC)"
 	@echo ""
@@ -391,6 +426,30 @@ check-global:
 		fi; \
 	else \
 		echo "$(RED)❌ reviewer.md: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/orchestrator.md" ]; then \
+		ORCHESTRATOR_TARGET=$$(readlink "$(CLAUDE_AGENTS_DIR)/orchestrator.md"); \
+		if [ "$$ORCHESTRATOR_TARGET" = "$(AI_DEV_TASKS_DIR)/.claude/agents/orchestrator.md" ]; then \
+			echo "$(GREEN)✅ orchestrator.md: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/orchestrator.md → $$ORCHESTRATOR_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  orchestrator.md: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/orchestrator.md → $$ORCHESTRATOR_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ orchestrator.md: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_AGENTS_DIR)/common" ]; then \
+		COMMON_TARGET=$$(readlink "$(CLAUDE_AGENTS_DIR)/common"); \
+		if [ "$$COMMON_TARGET" = "$(AI_DEV_TASKS_DIR)/.claude/agents/common" ]; then \
+			echo "$(GREEN)✅ common/: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/common → $$COMMON_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  common/: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_AGENTS_DIR)/common → $$COMMON_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ common/: 설치되지 않음$(NC)"; \
 	fi
 	@echo ""
 
