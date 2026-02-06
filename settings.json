@@ -9,8 +9,8 @@
       "Bash(*)",
       "Write(*)",
       "Edit(*)",
-      "Read(//root/**)",
       "Read(//tmp/**)",
+      "Read(//~/**)",
       "WebSearch(*)",
       "SlashCommand(*)",
       "Skill(*)"
