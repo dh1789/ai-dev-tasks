@@ -1,0 +1,21 @@
+{
+  "alwaysThinkingEnabled": true,
+  "commitTrailer": false,
+  "enabledPlugins": {
+    "ralph-loop@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Read(//root/**)",
+      "Read(//tmp/**)",
+      "WebSearch(*)",
+      "SlashCommand(*)",
+      "Skill(*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

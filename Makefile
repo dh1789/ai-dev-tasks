@@ -12,6 +12,8 @@
 AI_DEV_TASKS_DIR := $(shell pwd)
 CLAUDE_SKILLS_DIR := $(HOME)/.claude/skills
 CLAUDE_AGENTS_DIR := $(HOME)/.claude/agents
+CLAUDE_DIR := $(HOME)/.claude
+CLAUDE_SETTINGS := $(HOME)/.claude/settings.json
 
 # Colors
 GREEN := \033[0;32m
@@ -40,6 +42,7 @@ help:
 	@echo "    • 스킬: plan, implement → ~/.claude/skills/"
 	@echo "    • 서브에이전트: planner, implementer, reviewer, orchestrator → ~/.claude/agents/"
 	@echo "    • 공통 리소스: common/ → ~/.claude/agents/common/"
+	@echo "    • 설정: settings.json → ~/.claude/settings.json"
 	@echo "    • 리소스: ai-dev-tasks 전체 디렉토리 (scripts, docker 등)"
 	@echo ""
 	@echo "  $(YELLOW)make install-project PROJECT_PATH=/path/to/project$(NC)"
@@ -167,6 +170,18 @@ install-global:
 	@ln -s "$(AI_DEV_TASKS_DIR)/.claude/agents/common" "$(CLAUDE_AGENTS_DIR)/common"
 	@echo "$(GREEN)✅ common/ 디렉토리 설치 완료$(NC)"
 	@echo ""
+	@echo "$(BLUE)⚙️  설정 파일 설치 중...$(NC)"
+	@if [ -L "$(CLAUDE_SETTINGS)" ]; then \
+		echo "$(YELLOW)⚠️  settings.json이 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_SETTINGS)"; \
+	elif [ -e "$(CLAUDE_SETTINGS)" ]; then \
+		echo "$(YELLOW)⚠️  settings.json이 이미 존재합니다. 백업 후 덮어씁니다.$(NC)"; \
+		cp "$(CLAUDE_SETTINGS)" "$(CLAUDE_SETTINGS).backup"; \
+		rm "$(CLAUDE_SETTINGS)"; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/settings.json" "$(CLAUDE_SETTINGS)"
+	@echo "$(GREEN)✅ settings.json 설치 완료$(NC)"
+	@echo ""
 	@echo "$(GREEN)🎉 글로벌 스킬 및 서브에이전트 설치 완료!$(NC)"
 	@echo ""
 	@echo "$(BLUE)설치된 항목:$(NC)"
@@ -178,6 +193,7 @@ install-global:
 	@echo "  • ~/.claude/agents/reviewer.md → .claude/agents/reviewer.md"
 	@echo "  • ~/.claude/agents/orchestrator.md → .claude/agents/orchestrator.md"
 	@echo "  • ~/.claude/agents/common/ → .claude/agents/common/"
+	@echo "  • ~/.claude/settings.json → settings.json"
 	@echo ""
 	@echo "$(BLUE)다음 단계:$(NC)"
 	@echo "  1. C++ 프로젝트에 Docker 리소스 링크: make install-project PROJECT_PATH=/path/to/project"
@@ -312,6 +328,16 @@ uninstall-global:
 		echo "$(GREEN)✅ common/ 디렉토리 제거 완료$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  common이 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_SETTINGS)" ]; then \
+		rm "$(CLAUDE_SETTINGS)" && \
+		echo "$(GREEN)✅ settings.json 제거 완료$(NC)"; \
+		if [ -e "$(CLAUDE_SETTINGS).backup" ]; then \
+			mv "$(CLAUDE_SETTINGS).backup" "$(CLAUDE_SETTINGS)" && \
+			echo "$(GREEN)   → 백업에서 원래 settings.json 복원됨$(NC)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  settings.json이 링크로 존재하지 않습니다.$(NC)"; \
 	fi
 	@echo ""
 	@echo "$(GREEN)✅ 글로벌 스킬 및 서브에이전트 제거 완료$(NC)"
@@ -450,6 +476,20 @@ check-global:
 		fi; \
 	else \
 		echo "$(RED)❌ common/: 설치되지 않음$(NC)"; \
+	fi
+	@echo ""
+	@echo "$(BLUE)설정 파일 확인:$(NC)"
+	@if [ -L "$(CLAUDE_SETTINGS)" ]; then \
+		SETTINGS_TARGET=$$(readlink "$(CLAUDE_SETTINGS)"); \
+		if [ "$$SETTINGS_TARGET" = "$(AI_DEV_TASKS_DIR)/settings.json" ]; then \
+			echo "$(GREEN)✅ settings.json: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_SETTINGS) → $$SETTINGS_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  settings.json: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_SETTINGS) → $$SETTINGS_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ settings.json: 설치되지 않음$(NC)"; \
 	fi
 	@echo ""
 
