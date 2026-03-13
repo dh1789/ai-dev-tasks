@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "출력에 PRD.md 파일이 포함되어 있고, 사용자 시나리오가 최소 2개 이상 포함됨",
+      "passed": true,
+      "evidence": "PRD.md 존재. '4. 사용자 시나리오' 섹션에 3개 시나리오 포함: '시나리오 1: 기본 콘솔 로깅', '시나리오 2: 파일 출력 로깅', '시나리오 3: 런타임 레벨 변경'"
+    },
+    {
+      "text": "출력에 PLAN.md 파일이 포함되어 있고, Phase가 2-3개로 구성됨 (간단한 기능이므로 7개 미만)",
+      "passed": false,
+      "evidence": "PLAN.md 존재하나 Phase가 4개로 구성됨 (Phase 1: 기반 구조, Phase 2: 콘솔 Transport 및 Logger, Phase 3: FileTransport 구현, Phase 4: 통합 및 인수 테스트). 2-3개 범위를 초과함."
+    },
+    {
+      "text": "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+      "passed": true,
+      "evidence": "모든 4개 Phase에 '🔴 RED Phase: 테스트 먼저 작성', '🟢 GREEN Phase: 테스트 통과하도록 구현', '🔵 REFACTOR Phase: 코드 품질 개선' 구조가 명시됨"
+    },
+    {
+      "text": "복잡도 분석이 수행되었고 낮은 복잡도 (0-10점)로 판단됨",
+      "passed": false,
+      "evidence": "복잡도 분석 섹션 존재하나 총점 16점(중간)으로 판단됨: '총점: 16점 (중간) - 일반 추론으로 충분, Sequential Thinking 선택적'. 0-10점 범위가 아님."
+    },
+    {
+      "text": "파일 경로가 docs/features/YYYY-MM-DD-logging-utility/ 형식을 따름",
+      "passed": false,
+      "evidence": "출력 파일들은 docs/features/ 경로 형식을 따르지 않음. 파일 구조는 'src/logger/' 하위에 정의되어 있으며, 출력 파일 자체도 'with_skill/outputs/' 디렉토리에 위치함. docs/features/YYYY-MM-DD-logging-utility/ 형식에 대한 언급 없음."
+    },
+    {
+      "text": "Node.js/TypeScript 프로젝트로 감지되었고, Jest 또는 Vitest 등 해당 언어 테스트 프레임워크가 언급됨",
+      "passed": true,
+      "evidence": "PRD.md: '프로젝트 타입: Node.js/TypeScript (자동 감지)', '테스트: Jest 또는 Vitest'. PLAN.md: '프로젝트 타입: Node.js/TypeScript (자동 감지)', 테스트 도구 칼럼에 'Jest / Vitest' 명시."
+    },
+    {
+      "text": "각 Phase에 Quality Gate (완료 조건)가 포함되어 있음",
+      "passed": true,
+      "evidence": "모든 4개 Phase에 'Quality Gate ✋' 섹션이 포함됨. 각 섹션에 TDD 준수 체크리스트, 빌드 & 테스트 명령어, 품질 검사 항목, 커밋 절차가 포함되어 있음."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 3,
+    "total": 7,
+    "pass_rate": 0.57
+  }
+}

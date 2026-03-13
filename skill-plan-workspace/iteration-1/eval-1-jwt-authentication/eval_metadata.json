@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "jwt-authentication-complex-plan",
+  "prompt": "JWT 기반 사용자 인증 시스템을 구현하려고 해. 토큰 생성, 검증, 리프레시 기능이 필요하고 보안이 중요해. Redis로 블랙리스트 관리도 해야 돼.",
+  "assertions": [
+    "출력에 PRD.md 파일이 포함되어 있고, 보안 요구사항이 명시됨",
+    "출력에 PLAN.md 파일이 포함되어 있고, Phase가 4-7개로 구성됨 (복잡한 기능)",
+    "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+    "복잡도 분석이 수행되었고 높은 복잡도 (26점 이상)로 판단됨",
+    "AskUserQuestion 사용이 언급되거나 상세 요구사항 수집 과정이 문서화됨",
+    "Redis 블랙리스트, 토큰 리프레시 등 핵심 기능이 Phase에 반영됨",
+    "보안 관련 테스트 (토큰 만료, 블랙리스트, 취약점 검증)가 테스트 전략에 포함됨",
+    "각 Phase에 Quality Gate와 롤백 전략이 포함되어 있음"
+  ]
+}

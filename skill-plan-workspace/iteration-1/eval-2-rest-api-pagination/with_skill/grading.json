@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "출력에 PRD.md 파일이 포함되어 있고, 커서 기반 페이지네이션의 장점이 설명됨",
+      "passed": true,
+      "evidence": "PRD.md 존재. 커서 기반 장점 설명: '성능 일관성: 페이지 위치와 무관하게 일정한 응답 시간', '데이터 안정성: 페이징 중 데이터 변경에도 누락/중복 없음', 'offset이 커질수록 DB가 앞선 모든 행을 스캔해야 하므로 응답 시간이 선형적으로 증가한다'"
+    },
+    {
+      "text": "출력에 PLAN.md 파일이 포함되어 있고, Phase가 3-5개로 구성됨",
+      "passed": true,
+      "evidence": "PLAN.md 존재. Phase 5개 구성: Phase 1 커서 코덱, Phase 2 쿼리 빌더, Phase 3 미들웨어 및 응답 빌더, Phase 4 API 통합 및 통합 테스트, Phase 5 성능 테스트 및 최적화"
+    },
+    {
+      "text": "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+      "passed": true,
+      "evidence": "모든 Phase에 '🔴 RED Phase: 테스트 먼저 작성', '🟢 GREEN Phase: 테스트 통과하도록 구현', '🔵 REFACTOR Phase: 코드 품질 개선' 섹션이 명시됨 (Phase 1~5 모두 동일 구조)"
+    },
+    {
+      "text": "복잡도 분석이 수행되었고 중간 복잡도 (11-25점)로 판단됨",
+      "passed": false,
+      "evidence": "복잡도 분석 수행됨. 총점 26점으로 '중간~높음 복잡도'로 판단. 기대 범위(11-25점)를 1점 초과하여 불일치"
+    },
+    {
+      "text": "Express 프레임워크 기반 구현이 반영됨 (미들웨어, 라우트 등)",
+      "passed": true,
+      "evidence": "PRD FR-3: 'Express 미들웨어로 요청 파라미터 파싱 및 검증'. PLAN Phase 3: 'PaginationMiddleware: Express 쿼리 파라미터 파싱/검증', Phase 4: '기존 라우터에 커서 페이지네이션 미들웨어 연결', 'Express 타입 확장 (req.pagination)'"
+    },
+    {
+      "text": "성능 관련 테스트 (대량 데이터, 인덱스 최적화 등)가 포함됨",
+      "passed": true,
+      "evidence": "PLAN Phase 5 전체가 성능 테스트 및 최적화: '1,000만 건 테이블에서 어떤 페이지든 응답 시간 < 50ms', 'offset vs cursor 성능 비교', '메모리 사용량 프로파일링', 'DB 인덱스 활용 확인 (EXPLAIN ANALYZE 가이드)', '복합 인덱스 권장 사항'"
+    },
+    {
+      "text": "프로젝트 타입이 Node.js/TypeScript로 감지됨",
+      "passed": true,
+      "evidence": "PLAN.md: '프로젝트 타입: 자동 감지됨: Node.js/TypeScript (Express)', PRD.md: '프로젝트 타입: Node.js/TypeScript (Express)'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 1,
+    "total": 7,
+    "pass_rate": 0.86
+  }
+}

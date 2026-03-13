@@ -109,20 +109,9 @@ PLAN.md를 기반으로 **자동화된 구현**을 수행합니다:
 
 ## 실행 프로세스
 
-### 0단계: 사고 도구 자동 선택
+### 0단계: Sequential Thinking 활성화
 
-Phase 복잡도에 따라 적절한 사고 도구와 에이전트를 자동 활성화:
-
-| 복잡도 | 모드 | 사고 도구 | 에이전트 |
-|---------|------|----------|---------|
-| 낮음 (0-10) | 일반 | 기본 추론 | - |
-| 중간 (11-25) | Sequential | ~5-10 steps | - |
-| 높음 (26-50) | Sequential+ | ~15-20 steps | root-cause-analyst, system-architect |
-| 매우 높음 (51+) | 최대 깊이 | ~25-30 steps | 다중 에이전트 + Context7 |
-
-복잡도 = 컴포넌트수×2 + 외부의존성×3 + 멀티스레딩(0/10) + 메모리관리(0-10) + 성능(0-10) + 보안(0-10)
-
-상황별 에이전트 활성화: 테스트 실패 → root-cause-analyst, 메모리 오류 → Valgrind 심층분석, 빌드 오류 → 의존성 체인 확인, 성능 이슈 → performance-engineer
+모든 Phase 실행에 **항상 Sequential Thinking을 사용**합니다. 상황별 에이전트는 필요시 자동 활성화: 테스트 실패 → root-cause-analyst, 메모리 오류 → Valgrind 심층분석, 빌드 오류 → 의존성 체인 확인, 성능 이슈 → performance-engineer
 
 ### 1단계: PLAN.md 찾기 및 로드
 

@@ -1,0 +1,51 @@
+{
+  "skill_name": "plan",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "로깅 유틸리티 클래스를 만들고 싶어. 로그 레벨 (DEBUG, INFO, WARN, ERROR) 지원하고 파일 출력도 가능하게. 프로젝트는 Node.js TypeScript로 되어있어.",
+      "expected_output": "Sequential Thinking 사용하여 플래닝 진행. Phase 2-3개, 각 Phase에 TDD 구조 포함. docs/features/YYYY-MM-DD-logging-utility/ 디렉토리에 PRD.md와 PLAN.md 생성.",
+      "files": [],
+      "expectations": [
+        "출력에 PRD.md 파일이 포함되어 있고, 사용자 시나리오가 최소 2개 이상 포함됨",
+        "출력에 PLAN.md 파일이 포함되어 있고, Phase가 2-3개로 구성됨 (간단한 기능)",
+        "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+        "Sequential Thinking이 사용됨",
+        "파일 경로가 docs/features/YYYY-MM-DD-logging-utility/ 형식을 따름",
+        "Node.js/TypeScript 테스트 프레임워크 (Jest/Vitest)가 언급됨",
+        "각 Phase에 Quality Gate가 포함되어 있음"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "JWT 기반 사용자 인증 시스템을 구현하려고 해. 토큰 생성, 검증, 리프레시 기능이 필요하고 보안이 중요해. Redis로 블랙리스트 관리도 해야 돼.",
+      "expected_output": "Sequential Thinking 사용하여 AskUserQuestion으로 상세 요구사항 수집. Phase 4-7개, 보안 요구사항 포함. docs/features/YYYY-MM-DD-jwt-authentication/ 디렉토리에 PRD.md와 PLAN.md 생성.",
+      "files": [],
+      "expectations": [
+        "출력에 PRD.md 파일이 포함되어 있고, 보안 요구사항이 명시됨",
+        "출력에 PLAN.md 파일이 포함되어 있고, Phase가 4-7개로 구성됨",
+        "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+        "Sequential Thinking이 사용됨",
+        "AskUserQuestion 사용이 언급되거나 상세 요구사항 수집 과정이 문서화됨",
+        "Redis 블랙리스트, 토큰 리프레시 등 핵심 기능이 Phase에 반영됨",
+        "보안 관련 테스트가 테스트 전략에 포함됨",
+        "각 Phase에 Quality Gate와 롤백 전략이 포함되어 있음"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "REST API에 커서 기반 페이지네이션을 추가해줘. 기존 Express 서버에 적용하는 거야. offset 방식이 아니라 cursor 방식으로. 대량 데이터 처리 성능도 고려해줘.",
+      "expected_output": "Sequential Thinking 사용하여 프로젝트 타입 자동 감지 (Node.js/TypeScript). Phase 3-5개, 성능 관련 테스트 포함. docs/features/YYYY-MM-DD-rest-api-pagination/ 디렉토리에 PRD.md와 PLAN.md 생성.",
+      "files": [],
+      "expectations": [
+        "출력에 PRD.md 파일이 포함되어 있고, 커서 기반 페이지네이션의 장점이 설명됨",
+        "출력에 PLAN.md 파일이 포함되어 있고, Phase가 3-5개로 구성됨",
+        "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+        "Sequential Thinking이 사용됨",
+        "Express 프레임워크 기반 구현이 반영됨",
+        "성능 관련 테스트 (대량 데이터 처리)가 포함됨",
+        "프로젝트 타입이 Node.js/TypeScript로 감지됨"
+      ]
+    }
+  ]
+}

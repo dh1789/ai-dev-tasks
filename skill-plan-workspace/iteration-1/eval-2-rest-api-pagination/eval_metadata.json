@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "rest-api-pagination-medium-plan",
+  "prompt": "REST API에 커서 기반 페이지네이션을 추가해줘. 기존 Express 서버에 적용하는 거야. offset 방식이 아니라 cursor 방식으로. 대량 데이터 처리 성능도 고려해줘.",
+  "assertions": [
+    "출력에 PRD.md 파일이 포함되어 있고, 커서 기반 페이지네이션의 장점이 설명됨",
+    "출력에 PLAN.md 파일이 포함되어 있고, Phase가 3-5개로 구성됨",
+    "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+    "복잡도 분석이 수행되었고 중간 복잡도 (11-25점)로 판단됨",
+    "Express 프레임워크 기반 구현이 반영됨 (미들웨어, 라우트 등)",
+    "성능 관련 테스트 (대량 데이터, 인덱스 최적화 등)가 포함됨",
+    "프로젝트 타입이 Node.js/TypeScript로 감지됨"
+  ]
+}

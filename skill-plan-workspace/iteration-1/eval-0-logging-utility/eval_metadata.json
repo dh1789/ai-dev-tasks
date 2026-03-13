@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "logging-utility-simple-plan",
+  "prompt": "로깅 유틸리티 클래스를 만들고 싶어. 로그 레벨 (DEBUG, INFO, WARN, ERROR) 지원하고 파일 출력도 가능하게. 프로젝트는 Node.js TypeScript로 되어있어.",
+  "assertions": [
+    "출력에 PRD.md 파일이 포함되어 있고, 사용자 시나리오가 최소 2개 이상 포함됨",
+    "출력에 PLAN.md 파일이 포함되어 있고, Phase가 2-3개로 구성됨 (간단한 기능이므로 7개 미만)",
+    "각 Phase에 TDD 구조 (RED, GREEN, REFACTOR)가 명시되어 있음",
+    "복잡도 분석이 수행되었고 낮은 복잡도 (0-10점)로 판단됨",
+    "파일 경로가 docs/features/YYYY-MM-DD-logging-utility/ 형식을 따름",
+    "Node.js/TypeScript 프로젝트로 감지되었고, Jest 또는 Vitest 등 해당 언어 테스트 프레임워크가 언급됨",
+    "각 Phase에 Quality Gate (완료 조건)가 포함되어 있음"
+  ]
+}
