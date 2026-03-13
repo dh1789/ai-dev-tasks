@@ -3,6 +3,19 @@ name: plan
 description: 기능 계획 수립 - 요구사항 수집, PRD 생성, Phase 분해를 수행합니다. 새 기능 개발, 구현 계획, 개발 로드맵, Phase 분해, 요구사항 분석이 필요할 때 반드시 이 스킬을 사용하세요. 사용자가 '계획', '플래닝', '설계', 'PRD', '구현 전략', '기능 개발', 'feature plan', '개발 계획' 등을 언급하면 자동으로 활성화됩니다. 다언어 지원 (Ruby/Rails, Node.js/TypeScript, C++, Python) - 프로젝트 타입을 자동 감지하고 언어별 최적화된 계획을 수립합니다.
 argument-hint: "[기능 설명]"
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash
+user-invocable: true
+hooks:
+  PostToolUse:
+    - matcher: "Write"
+      hooks:
+        - type: command
+          command: "echo '📝 파일 작성 완료 — PLAN.md/PRD.md 작성 시 검증 스크립트 실행을 권장합니다.'"
+  Stop:
+    - hooks:
+        - type: command
+          command: "${CLAUDE_SKILL_DIR}/scripts/stop-validate.sh"
+          timeout: 30
+          statusMessage: "🔍 계획 검증 실행 중..."
 ---
 
 # Feature Planning Skill
@@ -233,6 +246,17 @@ PLAN.md 생성 후 사용자에게 안내:
 
 **실행 흐름 예제**: [references/examples.md](references/examples.md) 참조
 
+## 자동화 훅
+
+이 스킬은 Frontmatter Hooks를 통해 자동화된 품질 관리를 수행합니다:
+
+| 훅 이벤트 | 트리거 | 동작 |
+|-----------|--------|------|
+| **PostToolUse (Write)** | PRD.md/PLAN.md 파일 작성 시 | 검증 스크립트 실행 알림 |
+| **Stop** | 스킬 실행 완료 시 | `stop-validate.sh`로 최신 PLAN.md 자동 검증 |
+
+> **context:fork 미사용 이유**: 이 스킬은 AskUserQuestion으로 사용자와 대화하고 승인을 받아야 하므로 격리된 서브에이전트(`context: fork`)에서 실행하면 대화 컨텍스트를 잃습니다. 대화형 워크플로우가 필요한 스킬은 인라인 실행이 적합합니다.
+
 ## 주의사항
 
 1. 계획 수립 전 `scripts/detect-project-type.sh`로 프로젝트 타입 식별
@@ -249,5 +273,6 @@ PLAN.md 생성 후 사용자에게 안내:
 - `references/testing-guidelines.md`: TDD, 테스트 패턴, 품질 게이트
 - `references/examples.md`: 실행 흐름 예제
 - `scripts/validate-plan.sh`: 계획 검증 스크립트
+- `scripts/stop-validate.sh`: Stop 훅 자동 검증 래퍼
 - `~/.claude/skills/ai-dev-tasks/scripts/detect-project-type.sh`: 프로젝트 타입 감지
 - `~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh`: Slack 알림
