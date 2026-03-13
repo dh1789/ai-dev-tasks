@@ -1,9 +1,4 @@
 {
-  "alwaysThinkingEnabled": true,
-  "commitTrailer": false,
-  "enabledPlugins": {
-    "ralph-loop@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
       "Bash(*)",
@@ -17,5 +12,12 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledPlugins": {
+    "ruby-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "commitTrailer": false,
+  "skipDangerousModePermissionPrompt": true
 }
