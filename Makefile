@@ -39,7 +39,7 @@ help:
 	@echo ""
 	@echo "  $(YELLOW)make install$(NC)"
 	@echo "    글로벌 스킬 및 서브에이전트 설치"
-	@echo "    • 스킬: plan, implement → ~/.claude/skills/"
+	@echo "    • 스킬: plan, implement, nac-troubleshoot → ~/.claude/skills/"
 	@echo "    • 서브에이전트: planner, implementer, reviewer, orchestrator → ~/.claude/agents/"
 	@echo "    • 공통 리소스: common/ → ~/.claude/agents/common/"
 	@echo "    • 설정: settings.json → ~/.claude/settings.json"
@@ -106,6 +106,16 @@ install-global:
 	fi
 	@ln -s "$(AI_DEV_TASKS_DIR)/skill-implement" "$(CLAUDE_SKILLS_DIR)/implement"
 	@echo "$(GREEN)✅ implement 스킬 설치 완료$(NC)"
+	@if [ -L "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot" ]; then \
+		echo "$(YELLOW)⚠️  nac-troubleshoot 스킬이 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot"; \
+	elif [ -e "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot" ]; then \
+		echo "$(RED)❌ 오류: $(CLAUDE_SKILLS_DIR)/nac-troubleshoot이 일반 파일/디렉토리로 존재합니다.$(NC)"; \
+		echo "$(YELLOW)   수동으로 백업 후 제거하세요: mv $(CLAUDE_SKILLS_DIR)/nac-troubleshoot $(CLAUDE_SKILLS_DIR)/nac-troubleshoot.backup$(NC)"; \
+		exit 1; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/skill-nac-troubleshoot" "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot"
+	@echo "$(GREEN)✅ nac-troubleshoot 스킬 설치 완료$(NC)"
 	@if [ -L "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks" ]; then \
 		echo "$(YELLOW)⚠️  ai-dev-tasks가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
 		rm "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks"; \
@@ -187,6 +197,7 @@ install-global:
 	@echo "$(BLUE)설치된 항목:$(NC)"
 	@echo "  • ~/.claude/skills/plan → skill-plan/"
 	@echo "  • ~/.claude/skills/implement → skill-implement/"
+	@echo "  • ~/.claude/skills/nac-troubleshoot → skill-nac-troubleshoot/"
 	@echo "  • ~/.claude/skills/ai-dev-tasks → 전체 리소스 (scripts, docker 등)"
 	@echo "  • ~/.claude/agents/planner.md → .claude/agents/planner.md"
 	@echo "  • ~/.claude/agents/implementer.md → .claude/agents/implementer.md"
@@ -292,6 +303,12 @@ uninstall-global:
 		echo "$(GREEN)✅ implement 스킬 제거 완료$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  implement 스킬이 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot" ]; then \
+		rm "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot" && \
+		echo "$(GREEN)✅ nac-troubleshoot 스킬 제거 완료$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  nac-troubleshoot 스킬이 링크로 존재하지 않습니다.$(NC)"; \
 	fi
 	@if [ -L "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks" ]; then \
 		rm "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks" && \
@@ -402,6 +419,18 @@ check-global:
 		fi; \
 	else \
 		echo "$(RED)❌ implement 스킬: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot" ]; then \
+		NAC_TARGET=$$(readlink "$(CLAUDE_SKILLS_DIR)/nac-troubleshoot"); \
+		if [ "$$NAC_TARGET" = "$(AI_DEV_TASKS_DIR)/skill-nac-troubleshoot" ]; then \
+			echo "$(GREEN)✅ nac-troubleshoot 스킬: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_SKILLS_DIR)/nac-troubleshoot → $$NAC_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  nac-troubleshoot 스킬: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_SKILLS_DIR)/nac-troubleshoot → $$NAC_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ nac-troubleshoot 스킬: 설치되지 않음$(NC)"; \
 	fi
 	@if [ -L "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks" ]; then \
 		AI_DEV_TASKS_TARGET=$$(readlink "$(CLAUDE_SKILLS_DIR)/ai-dev-tasks"); \
