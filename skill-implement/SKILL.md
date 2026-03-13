@@ -2,6 +2,22 @@
 name: implement
 description: PLAN.md 기반 자동 구현 실행 스킬. Phase별 TDD 사이클(RED→GREEN→REFACTOR)을 자동으로 수행하고, 프로젝트 타입을 자동 감지하여 언어별 최적화된 빌드/테스트를 실행합니다. 사용자가 '구현', '실행', '코딩 시작', 'implement', '빌드', '개발 진행', 'Phase 실행', 'TDD', '자동 구현' 등을 언급하면 반드시 이 스킬을 사용하세요. 다언어 지원 (Ruby/Rails, Node.js/TypeScript, C++, Python, Bash/Shell, Ansible).
 argument-hint: "[feature-name]"
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+user-invocable: true
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "${CLAUDE_SKILL_DIR}/scripts/block-git-push.sh"
+          timeout: 5
+          statusMessage: "🛡️ git push 정책 확인 중..."
+  Stop:
+    - hooks:
+        - type: command
+          command: "${CLAUDE_SKILL_DIR}/scripts/stop-validate-implement.sh"
+          timeout: 60
+          statusMessage: "🔍 구현 검증 실행 중..."
 ---
 
 # Feature Implementation Skill
@@ -193,10 +209,23 @@ Phase 완료 시각, 소요 시간, 테스트 결과, 커버리지, 변경 파�
 - `references/language-patterns.md`: 언어별 빌드/테스트/품질검사 상세
 - `references/examples.md`: 실행 흐름 예제
 - `scripts/validate-implement.sh`: 구현 검증 스크립트
+- `scripts/stop-validate-implement.sh`: Stop 훅 자동 검증 래퍼
+- `scripts/block-git-push.sh`: PreToolUse 훅 git push 차단
 - `~/.claude/skills/ai-dev-tasks/scripts/detect-project-type.sh`: 프로젝트 타입 감지
 - `~/.claude/skills/ai-dev-tasks/scripts/slack-notify.sh`: Slack 알림
 
 **상세 사용 예제**: [references/examples.md](references/examples.md) 참조
+
+## 자동화 훅
+
+이 스킬은 Frontmatter Hooks를 통해 안전성과 품질을 자동으로 강제합니다:
+
+| 훅 이벤트 | 트리거 | 동작 |
+|-----------|--------|------|
+| **PreToolUse (Bash)** | 모든 Bash 명령 실행 전 | `git push` 명령 자동 차단 (MUST 규칙 강제) |
+| **Stop** | 스킬 실행 완료 시 | `stop-validate-implement.sh`로 구현 결과 자동 검증 |
+
+> **context:fork 미사용 이유**: 이 스킬은 중대한 문제 발생 시 AskUserQuestion으로 사용자 개입을 요청하고, git commit 등 메인 컨텍스트의 도구를 사용합니다. 격리된 서브에이전트(`context: fork`)에서는 이러한 대화형 복구가 불가능합니다.
 
 ## 주의사항
 
@@ -204,5 +233,5 @@ Phase 완료 시각, 소요 시간, 테스트 결과, 커버리지, 변경 파�
 2. C++은 Docker 컨테이너 필수, Ruby/Node.js는 로컬 실행
 3. 테스트 절대 스킵 불가, 30분 타임아웃 엄수
 4. 중대한 문제 외에는 자동 진행
-5. git push는 사용자가 직접
+5. git push는 사용자가 직접 (PreToolUse 훅으로 자동 차단)
 6. Slack 알림: 모든 중요 이벤트 알림 (한글)
