@@ -13,7 +13,7 @@ hooks:
   Stop:
     - hooks:
         - type: command
-          command: "${CLAUDE_SKILL_DIR}/scripts/stop-validate.sh"
+          command: "~/.claude/skills/plan/scripts/stop-validate.sh"
           timeout: 30
           statusMessage: "🔍 계획 검증 실행 중..."
 ---

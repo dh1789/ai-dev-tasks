@@ -9,13 +9,13 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "${CLAUDE_SKILL_DIR}/scripts/block-git-push.sh"
+          command: "~/.claude/skills/implement/scripts/block-git-push.sh"
           timeout: 5
           statusMessage: "🛡️ git push 정책 확인 중..."
   Stop:
     - hooks:
         - type: command
-          command: "${CLAUDE_SKILL_DIR}/scripts/stop-validate-implement.sh"
+          command: "~/.claude/skills/implement/scripts/stop-validate-implement.sh"
           timeout: 60
           statusMessage: "🔍 구현 검증 실행 중..."
 ---
