@@ -8,7 +8,8 @@
       "Read(//~/**)",
       "WebSearch(*)",
       "SlashCommand(*)",
-      "Skill(*)"
+      "Skill(*)",
+      "WebFetch(*)"
     ],
     "deny": [],
     "ask": []
@@ -19,5 +20,6 @@
   },
   "alwaysThinkingEnabled": true,
   "commitTrailer": false,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "max"
 }
