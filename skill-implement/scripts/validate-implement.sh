@@ -108,7 +108,8 @@ fi
 
 if [[ -f "$PROGRESS_FILE" ]]; then
     # PROGRESS.md에서 완료된 Phase 수 확인
-    COMPLETED_PHASES=$(grep -cE "(Phase.*완료|Phase.*✅|completed)" "$PROGRESS_FILE" 2>/dev/null || echo "0")
+    COMPLETED_PHASES=$(grep -cE "(Phase.*완료|Phase.*✅|completed)" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
+    COMPLETED_PHASES=$(echo "$COMPLETED_PHASES" | tr -d '[:space:]')
 
     if [[ "$COMPLETED_PHASES" -gt 0 ]]; then
         pass "완료된 Phase: $COMPLETED_PHASES개"
@@ -117,7 +118,8 @@ if [[ -f "$PROGRESS_FILE" ]]; then
     fi
 
     # 진행 중인 Phase 확인
-    IN_PROGRESS=$(grep -cE "(진행 중|🔄|in.progress)" "$PROGRESS_FILE" 2>/dev/null || echo "0")
+    IN_PROGRESS=$(grep -cE "(진행 중|🔄|in.progress)" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
+    IN_PROGRESS=$(echo "$IN_PROGRESS" | tr -d '[:space:]')
     if [[ "$IN_PROGRESS" -gt 0 ]]; then
         info "진행 중인 Phase 있음"
     fi
@@ -234,7 +236,8 @@ echo "────────────────────────"
 
 if [[ -f "$PROGRESS_FILE" ]]; then
     # 커밋 해시 존재 확인
-    COMMIT_COUNT=$(grep -cE "(커밋|commit)[:\s]*[a-f0-9]{7,}" "$PROGRESS_FILE" 2>/dev/null || echo "0")
+    COMMIT_COUNT=$(grep -cE "(커밋|commit).*[a-f0-9]{7,}" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
+    COMMIT_COUNT=$(echo "$COMMIT_COUNT" | tr -d '[:space:]')
 
     if [[ "$COMMIT_COUNT" -gt 0 ]]; then
         pass "커밋 기록: ${COMMIT_COUNT}개"
