@@ -11,7 +11,7 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "${CLAUDE_SKILL_DIR}/scripts/block-dangerous-commands.sh"
+          command: "~/.claude/skills/nac-troubleshoot/scripts/block-dangerous-commands.sh"
           timeout: 5
           statusMessage: "🛡️ 안전 정책 확인 중..."
 ---

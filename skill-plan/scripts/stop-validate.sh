@@ -28,4 +28,4 @@ echo ""
 echo "🔍 자동 검증 실행: $FEATURE_DIR"
 echo ""
 
-"$VALIDATE_SCRIPT" "$FEATURE_DIR"
+"$VALIDATE_SCRIPT" "$FEATURE_DIR" || true

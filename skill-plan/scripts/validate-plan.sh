@@ -113,7 +113,7 @@ echo "📊 [2/6] Phase 규격 검증"
 echo "────────────────────────"
 
 # Phase 개수 확인 (### Phase N: 패턴)
-PHASE_COUNT=$(grep -cE "^###\s+Phase\s+[0-9]+:" "$PLAN_FILE" 2>/dev/null || echo "0")
+PHASE_COUNT=$(grep -cE "^###\s+Phase\s+[0-9]+:" "$PLAN_FILE" 2>/dev/null || true)
 
 if [[ "$PHASE_COUNT" -ge 3 && "$PHASE_COUNT" -le 7 ]]; then
     pass "Phase 개수: $PHASE_COUNT (3-7개 범위 내)"
@@ -132,25 +132,25 @@ echo "🔄 [3/6] TDD 구조 검증"
 echo "────────────────────────"
 
 # RED 단계 확인
-RED_COUNT=$(grep -cE "🔴\s*(RED|테스트)" "$PLAN_FILE" 2>/dev/null || echo "0")
+RED_COUNT=$(grep -cE "🔴\s*(RED|테스트)" "$PLAN_FILE" 2>/dev/null || true)
 if [[ "$RED_COUNT" -ge 1 ]]; then
-    pass "🔴 RED 단계 존재 ($RED_COUNT개)"
+    pass "🔴 RED 단계 존재 (${RED_COUNT}개)"
 else
     fail "🔴 RED 단계 없음 (테스트 먼저 작성 단계 필요)"
 fi
 
 # GREEN 단계 확인
-GREEN_COUNT=$(grep -cE "🟢\s*(GREEN|구현|통과)" "$PLAN_FILE" 2>/dev/null || echo "0")
+GREEN_COUNT=$(grep -cE "🟢\s*(GREEN|구현|통과)" "$PLAN_FILE" 2>/dev/null || true)
 if [[ "$GREEN_COUNT" -ge 1 ]]; then
-    pass "🟢 GREEN 단계 존재 ($GREEN_COUNT개)"
+    pass "🟢 GREEN 단계 존재 (${GREEN_COUNT}개)"
 else
     fail "🟢 GREEN 단계 없음 (구현 단계 필요)"
 fi
 
 # REFACTOR 단계 확인
-REFACTOR_COUNT=$(grep -cE "🔵\s*(REFACTOR|리팩토링|리팩터)" "$PLAN_FILE" 2>/dev/null || echo "0")
+REFACTOR_COUNT=$(grep -cE "🔵\s*(REFACTOR|리팩토링|리팩터)" "$PLAN_FILE" 2>/dev/null || true)
 if [[ "$REFACTOR_COUNT" -ge 1 ]]; then
-    pass "🔵 REFACTOR 단계 존재 ($REFACTOR_COUNT개)"
+    pass "🔵 REFACTOR 단계 존재 (${REFACTOR_COUNT}개)"
 else
     warn "🔵 REFACTOR 단계 없음 (권장: 코드 품질 개선 단계)"
 fi

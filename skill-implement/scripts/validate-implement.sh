@@ -102,32 +102,30 @@ echo "────────────────────────"
 
 if [[ -f "$PLAN_FILE" ]]; then
     # PLAN.md에서 총 Phase 수 확인
-    TOTAL_PHASES=$(grep -cE "^###\s+Phase\s+[0-9]+:" "$PLAN_FILE" 2>/dev/null || echo "0")
+    TOTAL_PHASES=$(grep -cE "^###\s+Phase\s+[0-9]+:" "$PLAN_FILE" 2>/dev/null || true)
     info "PLAN.md 총 Phase 수: $TOTAL_PHASES"
 fi
 
 if [[ -f "$PROGRESS_FILE" ]]; then
     # PROGRESS.md에서 완료된 Phase 수 확인
-    COMPLETED_PHASES=$(grep -cE "(Phase.*완료|Phase.*✅|completed)" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
-    COMPLETED_PHASES=$(echo "$COMPLETED_PHASES" | tr -d '[:space:]')
+    COMPLETED_PHASES=$(grep -cE "(Phase.*완료|Phase.*✅|completed)" "$PROGRESS_FILE" 2>/dev/null || true)
 
     if [[ "$COMPLETED_PHASES" -gt 0 ]]; then
-        pass "완료된 Phase: $COMPLETED_PHASES개"
+        pass "완료된 Phase: ${COMPLETED_PHASES}개"
     else
         warn "완료된 Phase 없음"
     fi
 
     # 진행 중인 Phase 확인
-    IN_PROGRESS=$(grep -cE "(진행 중|🔄|in.progress)" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
-    IN_PROGRESS=$(echo "$IN_PROGRESS" | tr -d '[:space:]')
+    IN_PROGRESS=$(grep -cE "(진행 중|🔄|in.progress)" "$PROGRESS_FILE" 2>/dev/null || true)
     if [[ "$IN_PROGRESS" -gt 0 ]]; then
         info "진행 중인 Phase 있음"
     fi
 
     # 실패한 Phase 확인
-    FAILED_PHASES=$(grep -cE "(실패|❌|failed|error)" "$PROGRESS_FILE" 2>/dev/null || echo "0")
+    FAILED_PHASES=$(grep -cE "(실패|❌|failed|error)" "$PROGRESS_FILE" 2>/dev/null || true)
     if [[ "$FAILED_PHASES" -gt 0 ]]; then
-        fail "실패한 Phase 있음: $FAILED_PHASES개"
+        fail "실패한 Phase 있음: ${FAILED_PHASES}개"
     else
         pass "실패한 Phase 없음"
     fi
@@ -159,7 +157,7 @@ if [[ -f "$PROGRESS_FILE" ]]; then
     fi
 
     # 100% 통과 확인
-    if grep -qE "([0-9]+/\1|100%)" "$PROGRESS_FILE"; then
+    if grep -qE "(100%|0 failures)" "$PROGRESS_FILE"; then
         pass "전체 테스트 통과 기록"
     fi
 else
@@ -236,8 +234,7 @@ echo "────────────────────────"
 
 if [[ -f "$PROGRESS_FILE" ]]; then
     # 커밋 해시 존재 확인
-    COMMIT_COUNT=$(grep -cE "(커밋|commit).*[a-f0-9]{7,}" "$PROGRESS_FILE" 2>/dev/null | tail -1 || echo "0")
-    COMMIT_COUNT=$(echo "$COMMIT_COUNT" | tr -d '[:space:]')
+    COMMIT_COUNT=$(grep -cE "(커밋|commit).*[a-f0-9]{7,}" "$PROGRESS_FILE" 2>/dev/null || true)
 
     if [[ "$COMMIT_COUNT" -gt 0 ]]; then
         pass "커밋 기록: ${COMMIT_COUNT}개"
@@ -257,7 +254,7 @@ fi
 if command -v git &> /dev/null; then
     # feature 디렉토리 기준으로 커밋 확인
     FEATURE_NAME=$(basename "$FEATURE_DIR")
-    RECENT_COMMITS=$(git log --oneline -10 2>/dev/null | grep -ci "$FEATURE_NAME" 2>/dev/null || echo "0")
+    RECENT_COMMITS=$(git log --oneline -10 2>/dev/null | grep -ci "$FEATURE_NAME" 2>/dev/null || true)
     RECENT_COMMITS="${RECENT_COMMITS//[^0-9]/}"  # 숫자만 추출
     RECENT_COMMITS="${RECENT_COMMITS:-0}"  # 빈 값이면 0
 
