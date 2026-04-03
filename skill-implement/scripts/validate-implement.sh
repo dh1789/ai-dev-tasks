@@ -157,7 +157,7 @@ if [[ -f "$PROGRESS_FILE" ]]; then
     fi
 
     # 100% 통과 확인
-    if grep -qE "(100%|0 failures)" "$PROGRESS_FILE"; then
+    if grep -qE "(100%|0 failures|전체.*통과|all.*pass)" "$PROGRESS_FILE"; then
         pass "전체 테스트 통과 기록"
     fi
 else
