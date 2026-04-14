@@ -56,6 +56,35 @@ docs/features/YYYY-MM-DD-feature-name/
 - [ ] 🔴 **GREEN Phase**: 최소 코드로 테스트 통과
 - [ ] 🟡 **REFACTOR Phase**: 코드 품질 개선
 
+### 🧪 테스트 프레임워크 강제 지정 🔴 MUST
+
+**언어별 테스트 프레임워크는 협상 불가능한 고정값으로 지정한다.**
+"프로젝트에 테스트 인프라 없음"으로 오판하여 단위 테스트를 생략하는 일이 없도록, PLAN 단계에서 반드시 프레임워크를 명시한다.
+
+| 언어 | 필수 프레임워크 | 비고 |
+|------|----------------|------|
+| **C / C++** | 🔴 **Google Test (gtest)** | 다른 선택지 불가. 기존 `tests/` 디렉토리 구조 준수 |
+| **Python** | pytest | unittest는 legacy 대응 시에만 |
+| **Node.js / TypeScript** | Jest (또는 Vitest — 프로젝트 기존 설정 우선) | Mocha는 legacy 대응 시에만 |
+| **Ruby / Rails** | Minitest (Rails 기본) 또는 RSpec (프로젝트 선택) | |
+| **Go** | 표준 `testing` 패키지 + `testify` | |
+| **Rust** | `cargo test` + `#[cfg(test)]` | |
+| **Java** | JUnit 5 | |
+| **Kotlin** | JUnit 5 + MockK | |
+| **Swift** | XCTest | |
+
+**검출 로직 (MUST)**:
+1. 프로젝트 타입 자동 감지 (`scripts/detect-project-type.sh`)
+2. 위 표에서 해당 언어의 필수 프레임워크 선택
+3. 프로젝트에 이미 다른 프레임워크 설정 존재 시: **기존 프레임워크 우선 존중** (단 C/C++는 예외 — gtest 고정)
+4. 기존 테스트 디렉토리 구조 조사 (`tests/`, `test/`, `spec/`) 후 PLAN.md에 반영
+
+**금지 패턴 🔴 절대 금지**:
+- ❌ "프로젝트에 테스트 인프라가 없으므로 빌드 성공 + 수동 CLI 테스트로 검증" — 실제로는 대부분 있음
+- ❌ RED Phase 태스크를 "빌드 실패 확인" / "상수 충돌 확인" 수준으로 왜소화
+- ❌ 순수 함수(검증/파싱/변환 유틸)의 단위 테스트 생략
+- ❌ 수동 테스트만으로 테스트 전략 완결 처리
+
 ### 📝 PRD 필수 섹션
 - [ ] 🔴 사용자 시나리오 (최소 2개)
 - [ ] 🔴 성공 지표 (측정 가능한 KPI)

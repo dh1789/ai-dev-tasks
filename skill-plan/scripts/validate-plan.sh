@@ -241,7 +241,7 @@ echo ""
 # ─────────────────────────────────────────
 # 6. 추가 품질 검사
 # ─────────────────────────────────────────
-echo "🔍 [6/6] 추가 품질 검사"
+echo "🔍 [6/7] 추가 품질 검사"
 echo "────────────────────────"
 
 # 테스트 전략 섹션
@@ -263,6 +263,50 @@ if grep -qiE "(아키텍처|architecture)" "$PLAN_FILE"; then
     pass "아키텍처 섹션 존재"
 else
     warn "아키텍처 섹션 없음"
+fi
+
+echo ""
+
+# ─────────────────────────────────────────
+# 7. 테스트 프레임워크 지정 + 금지 패턴 검증
+# ─────────────────────────────────────────
+echo "🧪 [7/7] 테스트 프레임워크 검증"
+echo "────────────────────────"
+
+# 7-1. 테스트 프레임워크 명시 확인
+if grep -qiE "(google\s*test|gtest|pytest|jest|vitest|minitest|rspec|junit|xctest|cargo\s+test|go\s+test|testify)" "$PLAN_FILE"; then
+    MATCHED_FW=$(grep -oiE "(google\s*test|gtest|pytest|jest|vitest|minitest|rspec|junit|xctest|cargo\s+test|go\s+test|testify)" "$PLAN_FILE" | head -1)
+    pass "테스트 프레임워크 명시: $MATCHED_FW"
+else
+    fail "테스트 프레임워크 명시 없음 (gtest/pytest/jest/vitest/minitest/rspec/junit/xctest 중 선택 필수)"
+fi
+
+# 7-2. C/C++ 프로젝트는 반드시 gtest
+if grep -qiE "(C\+\+|CMakeLists|\.cpp|\.hpp|\.cc|cmake\s+--build)" "$PLAN_FILE"; then
+    if grep -qiE "(google\s*test|gtest|GTest)" "$PLAN_FILE"; then
+        pass "C/C++ 프로젝트: Google Test 지정 확인"
+    else
+        fail "C/C++ 프로젝트인데 Google Test(gtest) 미지정 - 변경 불가한 필수 프레임워크"
+    fi
+fi
+
+# 7-3. 금지 패턴: "프레임워크 없음" 핑계로 수동 테스트 대체
+if grep -qiE "(프레임워크가\s*(분리|없|존재하지))" "$PLAN_FILE" || \
+   grep -qiE "(빌드\s*성공\s*\+\s*(CLI|수동))" "$PLAN_FILE" || \
+   grep -qiE "(수동\s*테스트로\s*검증)" "$PLAN_FILE"; then
+    fail "금지 패턴 감지: \"프레임워크 없음 → 빌드+수동 테스트로 대체\" 문구 사용. 반드시 자동화 단위 테스트 포함"
+fi
+
+# 7-4. 금지 패턴: RED Phase가 "빌드 에러/상수 충돌 확인" 수준
+if grep -qiE "(🔴.{0,80}(빌드\s*(실패|에러)\s*확인|상수.{0,20}충돌|include\s*에러))" "$PLAN_FILE"; then
+    warn "RED Phase 왜소화 의심: \"빌드 에러/상수 충돌/include 에러 확인\"만으로 RED를 채우지 말 것. 실제 단위 테스트 케이스를 작성할 것"
+fi
+
+# 7-5. 금지 패턴: 단위 테스트 개수 0 / 언급 없음
+if grep -qiE "단위\s*테스트" "$PLAN_FILE"; then
+    pass "단위 테스트 언급 존재"
+else
+    warn "단위 테스트 언급 없음 - 각 Phase별 단위 테스트 케이스 명시 권장"
 fi
 
 echo ""
