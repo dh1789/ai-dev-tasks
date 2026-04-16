@@ -302,11 +302,20 @@ if grep -qiE "(🔴.{0,80}(빌드\s*(실패|에러)\s*확인|상수.{0,20}충돌
     warn "RED Phase 왜소화 의심: \"빌드 에러/상수 충돌/include 에러 확인\"만으로 RED를 채우지 말 것. 실제 단위 테스트 케이스를 작성할 것"
 fi
 
-# 7-5. 금지 패턴: 단위 테스트 개수 0 / 언급 없음
-if grep -qiE "단위\s*테스트" "$PLAN_FILE"; then
+# 7-5. 단위 테스트 포함 의무 (FAIL 처리) 🔴 MUST
+if grep -qiE "단위\s*테스트|unit\s*test" "$PLAN_FILE"; then
     pass "단위 테스트 언급 존재"
 else
-    warn "단위 테스트 언급 없음 - 각 Phase별 단위 테스트 케이스 명시 권장"
+    fail "단위 테스트 언급 없음 - 모든 Phase에 최소 1개 단위 테스트 케이스 명시 필수 (MUST)"
+fi
+
+# 7-6. Phase별 단위 테스트 최소 포함 수 검증
+PHASE_COUNT=$(grep -cE "^##\s+Phase\s+[0-9]+" "$PLAN_FILE" || echo 0)
+UNIT_TEST_MENTIONS=$(grep -ciE "단위\s*테스트|unit\s*test" "$PLAN_FILE" || echo 0)
+if [ "$PHASE_COUNT" -gt 0 ] && [ "$UNIT_TEST_MENTIONS" -lt "$PHASE_COUNT" ]; then
+    fail "Phase당 단위 테스트 명시 부족: Phase $PHASE_COUNT개 대비 단위 테스트 언급 $UNIT_TEST_MENTIONS회 (Phase당 최소 1회 필수)"
+else
+    [ "$PHASE_COUNT" -gt 0 ] && pass "Phase당 단위 테스트 명시 충족 ($UNIT_TEST_MENTIONS/$PHASE_COUNT)"
 fi
 
 echo ""
