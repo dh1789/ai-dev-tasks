@@ -130,6 +130,23 @@ PLAN.md를 기반으로 **자동화된 구현**을 수행합니다:
 
 모든 Phase 실행에 **항상 Sequential Thinking을 사용**합니다. 상황별 에이전트는 필요시 자동 활성화: 테스트 실패 → root-cause-analyst, 메모리 오류 → Valgrind 심층분석, 빌드 오류 → 의존성 체인 확인, 성능 이슈 → performance-engineer
 
+### 0-A단계: 프로젝트 운영 가이드 매핑 🔴 MUST
+
+**Phase 별로 활용할 docs 가이드를 미리 매핑하고, 해당 단계에서 반드시 참조합니다.**
+
+| Phase 단계 | 반드시 참조 (있는 것만) | 활용 |
+|-----------|------------------------|------|
+| **🔴 RED — 테스트 작성** | `docs/TEST_GUIDELINES.md` | 외부 API stub 시나리오 (A/B/C), `skip_callback` 금지, 시간 의존 `travel_to`, 테스트 격리 패턴 |
+| **🟢 GREEN — 코드 구현** | `docs/CODE_PATTERNS.md`, `docs/PROJECT_CONVENTIONS.md` | Service/Job/Model 스켈레톤, 콜백 안티패턴, silent fallback 금지, source-of-truth 분기 |
+| **🔵 REFACTOR** | `docs/CODE_PATTERNS.md` §SRP, `docs/HARNESS_ENGINEERING.md` §14 함정 카탈로그 | 헬퍼 추출, 중복 메서드 사전 점검 (TR-3), Zeitwerk 1-class-per-file (TR-1) |
+| **품질 게이트** | `docs/HARNESS_ENGINEERING.md` §10 회귀 정책 | `PARALLEL_WORKERS=8 × 2회 연속`, harness verify/lint, baseline 메커니즘 |
+| **중단 / 복구** | `docs/HARNESS_ENGINEERING.md` §12 골든 트레이스, `docs/TROUBLESHOOTING.md` | drift / verify / smoke 진단 순서, 반복 문제 해결 |
+| **PROGRESS.md 작성** | (PLAN 의 결정과 다른 경우) PROGRESS.md 의 "PLAN 대비 변경 + 사유" 섹션 기록 | TR-6: PLAN 코드 스니펫은 의도이지 강제가 아님 |
+
+**Phase 진입 시 위 표에서 해당 단계의 docs 를 1줄 인용 후 작업 시작** — 컨텍스트 압축 후에도 이 매핑을 유지.
+
+특히 `docs/HARNESS_ENGINEERING.md` §14 함정 카탈로그는 **GREEN 직전 + 회귀 실패 시 반드시 검색** (같은 함정 재발 방지).
+
 ### 1단계: PLAN.md 찾기 및 로드
 
 ```bash
@@ -159,12 +176,19 @@ PLAN.md와 같은 디렉토리에 `progress-template.md` 기반으로 PROGRESS.m
 #### A. TDD Cycle 실행
 - 복잡도 낮음 → TDD 선택적
 - 복잡도 중간 이상 → TDD 필수 (🔴RED → 🟢GREEN → 🔵REFACTOR)
+- 🔴 **각 단계 진입 전 0-A단계 매핑표의 해당 docs 1줄 인용** (예: "RED — TEST_GUIDELINES §1 시간 의존성 `travel_to` 적용")
+- 🔴 GREEN 직전 + 신규 클래스/메서드 추가 시 `docs/HARNESS_ENGINEERING.md` §14 함정 카탈로그 grep 검색 (TR-1 ~ TR-6)
+- 🔴 신규 메서드 추가 전 `grep -n "def 메서드명" 파일` 사전 점검 (TR-3 — 중복 정의 회피)
 
 #### B. 빌드 및 테스트
 언어별 빌드/테스트 명령어: [references/language-patterns.md](references/language-patterns.md) 참조.
 
+회귀 정책: 프로젝트 docs 가 명시한 정책을 우선 (예: `docs/HARNESS_ENGINEERING.md` §10 — `PARALLEL_WORKERS=8 × 2회 연속`).
+
 #### C. 품질 검사
 언어별 품질 검사 스크립트: [references/language-patterns.md](references/language-patterns.md) 참조.
+
+프로젝트 고유 도구가 있으면 우선 (예: Ra 프로젝트의 `bin/harness verify` / `bin/harness lint`).
 
 #### D. 커밋 (호스트에서)
 품질 검사 통과 후 Phase별 개별 커밋. 커밋 형식: [references/language-patterns.md](references/language-patterns.md) 참조.
@@ -183,13 +207,15 @@ Phase 완료 시각, 소요 시간, 테스트 결과, 커버리지, 변경 파�
 
 **처리 순서:**
 1. 즉시 중단
-2. 현재 상태 저장 (PROGRESS.md)
-3. Slack 알림 전송 (error)
-4. AskUserQuestion으로 사용자에게 질문:
+2. **함정 카탈로그 검색** (있으면): `docs/HARNESS_ENGINEERING.md` §14 — 동일 증상 패턴이 이미 등록되어 있는지 grep
+3. 현재 상태 저장 (PROGRESS.md) — 함정 매칭 시 "TR-N 적용 회복" 명시
+4. Slack 알림 전송 (error)
+5. AskUserQuestion으로 사용자에게 질문:
    - 디버깅 후 재시도 (권장)
    - 대안 접근 방식 적용
    - 요구사항 수정 (PLAN.md 업데이트 필요)
    - Phase 스킵 (비권장, 품질 저하 가능)
+6. **신규 함정 발견 시 §14 에 TR-N 으로 추가 제안** (사용자 승인 후)
 
 ### 6단계: 전체 완료
 

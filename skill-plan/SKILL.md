@@ -102,6 +102,7 @@ docs/features/YYYY-MM-DD-feature-name/
 - [ ] 🔴 성공 지표 (측정 가능한 KPI)
 - [ ] 🟡 기술 스택 명시
 - [ ] 🟡 제약사항 및 가정
+- [ ] 🔴 **운영 가이드 참조** (있는 docs 만): PROJECT_CONVENTIONS / CODE_PATTERNS / HARNESS_ENGINEERING §14 함정 / KNOWN_DEFECTS / TEST_GUIDELINES / 도메인 가이드 — 본 PRD 와 관련된 항목 인용
 
 ### 📋 PLAN 필수 섹션
 - [ ] 🔴 **헤더 메타데이터**: Status, 생성일, 예상 완료, 프로젝트 타입, 언어/프레임워크, 실행 환경
@@ -155,6 +156,29 @@ docs/features/YYYY-MM-DD-feature-name/
 ### 0단계: Sequential Thinking 활성화
 
 모든 기능 계획에 **항상 Sequential Thinking을 사용**합니다. 기능의 규모와 관계없이 구조화된 사고를 통해 더 정확한 계획을 수립합니다.
+
+### 0-A단계: 프로젝트 운영 가이드 검토 🔴 MUST
+
+**PRD/PLAN 작성 전, 프로젝트 루트의 docs/ 운영 가이드를 반드시 검토하여 컨벤션·기존 패턴·결함 카탈로그를 PRD에 반영합니다.**
+
+검토 우선순위 (있는 것만, 없는 항목은 skip):
+
+| 문서 | 활용 | 미참조 시 발생 함정 |
+|------|------|------------------|
+| `docs/PROJECT_CONVENTIONS.md` | 레이어 컨벤션, 도메인 규칙, 안티패턴 — Phase 의 GREEN 코드가 컨벤션 준수하도록 | 컨벤션 위반 PR 반려 / 회귀 발생 |
+| `docs/CODE_PATTERNS.md` | Service/Job/Model/Test 표준 스켈레톤 — Phase 코드 스니펫에 적용 | 스켈레톤 불일치로 reviewer 시간 낭비 |
+| `docs/HARNESS_ENGINEERING.md` §14 함정 카탈로그 | 같은 함정 두 번 빠지지 않도록 (Zeitwerk 1-class-per-file, keyword/hash 분리, 메서드 중복 정의 등) | 동일 함정 재발 |
+| `docs/KNOWN_DEFECTS.md` | 미해결 결함이 본 PRD 와 충돌/연관되는지 — PLAN 위험 요소 섹션에 반영 | 알려진 결함을 모르고 진행 → 추가 결함 누적 |
+| `docs/TEST_GUIDELINES.md` | 테스트 패턴, 외부 API stub 시나리오, 회귀 정책 — Phase 의 RED 단계 명세에 적용 | stub 형식 불일치로 회귀 |
+| `docs/STRATEGY_GUIDE.md` 등 도메인 가이드 | 도메인 사양 (PRD 의 "근거" 섹션에 인용) | 사양 오해로 잘못된 구현 |
+
+**검토 결과를 PRD 의 "근거"/"제약사항" 섹션 + PLAN 의 "아키텍처 결정사항"/"위험 요소" 섹션에 반영**:
+
+- 예: PROJECT_CONVENTIONS §5 "silent fallback 금지" → PLAN 아키텍처 결정사항에 "외부 API 응답은 endpoint 응답을 source of truth 로" 명시
+- 예: HARNESS_ENGINEERING §14 TR-1 (Zeitwerk) → PLAN 의 신규 클래스 파일 분리 결정 사전 기록
+- 예: KNOWN_DEFECTS 미해결 H-N → PLAN 의 위험 요소 섹션에 "본 PRD 가 H-N 부분 해결 / 무관 / 의존" 명시
+
+**사용자가 "관련 docs 검토 끝났느냐" 라고 물어보지 않더라도 PRD 작성 직전에 검토 결과 요약을 1단락으로 사용자에게 보고**.
 
 ### 1단계: 요구사항 수집
 
