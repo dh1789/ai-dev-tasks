@@ -14,6 +14,7 @@ CLAUDE_SKILLS_DIR := $(HOME)/.claude/skills
 CLAUDE_AGENTS_DIR := $(HOME)/.claude/agents
 CLAUDE_DIR := $(HOME)/.claude
 CLAUDE_SETTINGS := $(HOME)/.claude/settings.json
+CLAUDE_STATUSLINE := $(HOME)/.claude/statusline-command.sh
 
 # Colors
 GREEN := \033[0;32m
@@ -43,6 +44,7 @@ help:
 	@echo "    • 서브에이전트: planner, implementer, reviewer, orchestrator → ~/.claude/agents/"
 	@echo "    • 공통 리소스: common/ → ~/.claude/agents/common/"
 	@echo "    • 설정: settings.json → ~/.claude/settings.json"
+	@echo "    • 상태표시줄: statusline-command.sh → ~/.claude/statusline-command.sh"
 	@echo "    • 리소스: ai-dev-tasks 전체 디렉토리 (scripts, docker 등)"
 	@echo ""
 	@echo "  $(YELLOW)make install-project PROJECT_PATH=/path/to/project$(NC)"
@@ -192,6 +194,19 @@ install-global:
 	@ln -s "$(AI_DEV_TASKS_DIR)/settings.json" "$(CLAUDE_SETTINGS)"
 	@echo "$(GREEN)✅ settings.json 설치 완료$(NC)"
 	@echo ""
+	@echo "$(BLUE)📊 상태 표시줄 스크립트 설치 중...$(NC)"
+	@if [ -L "$(CLAUDE_STATUSLINE)" ]; then \
+		echo "$(YELLOW)⚠️  statusline-command.sh가 이미 링크로 존재합니다. 덮어씁니다.$(NC)"; \
+		rm "$(CLAUDE_STATUSLINE)"; \
+	elif [ -e "$(CLAUDE_STATUSLINE)" ]; then \
+		echo "$(YELLOW)⚠️  statusline-command.sh가 이미 존재합니다. 백업 후 덮어씁니다.$(NC)"; \
+		cp "$(CLAUDE_STATUSLINE)" "$(CLAUDE_STATUSLINE).backup"; \
+		rm "$(CLAUDE_STATUSLINE)"; \
+	fi
+	@ln -s "$(AI_DEV_TASKS_DIR)/statusline-command.sh" "$(CLAUDE_STATUSLINE)"
+	@chmod +x "$(AI_DEV_TASKS_DIR)/statusline-command.sh"
+	@echo "$(GREEN)✅ statusline-command.sh 설치 완료$(NC)"
+	@echo ""
 	@echo "$(GREEN)🎉 글로벌 스킬 및 서브에이전트 설치 완료!$(NC)"
 	@echo ""
 	@echo "$(BLUE)설치된 항목:$(NC)"
@@ -205,6 +220,7 @@ install-global:
 	@echo "  • ~/.claude/agents/orchestrator.md → .claude/agents/orchestrator.md"
 	@echo "  • ~/.claude/agents/common/ → .claude/agents/common/"
 	@echo "  • ~/.claude/settings.json → settings.json"
+	@echo "  • ~/.claude/statusline-command.sh → statusline-command.sh"
 	@echo ""
 	@echo "$(BLUE)다음 단계:$(NC)"
 	@echo "  1. C++ 프로젝트에 Docker 리소스 링크: make install-project PROJECT_PATH=/path/to/project"
@@ -355,6 +371,16 @@ uninstall-global:
 		fi; \
 	else \
 		echo "$(YELLOW)⚠️  settings.json이 링크로 존재하지 않습니다.$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_STATUSLINE)" ]; then \
+		rm "$(CLAUDE_STATUSLINE)" && \
+		echo "$(GREEN)✅ statusline-command.sh 제거 완료$(NC)"; \
+		if [ -e "$(CLAUDE_STATUSLINE).backup" ]; then \
+			mv "$(CLAUDE_STATUSLINE).backup" "$(CLAUDE_STATUSLINE)" && \
+			echo "$(GREEN)   → 백업에서 원래 statusline-command.sh 복원됨$(NC)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  statusline-command.sh가 링크로 존재하지 않습니다.$(NC)"; \
 	fi
 	@echo ""
 	@echo "$(GREEN)✅ 글로벌 스킬 및 서브에이전트 제거 완료$(NC)"
@@ -519,6 +545,18 @@ check-global:
 		fi; \
 	else \
 		echo "$(RED)❌ settings.json: 설치되지 않음$(NC)"; \
+	fi
+	@if [ -L "$(CLAUDE_STATUSLINE)" ]; then \
+		STATUSLINE_TARGET=$$(readlink "$(CLAUDE_STATUSLINE)"); \
+		if [ "$$STATUSLINE_TARGET" = "$(AI_DEV_TASKS_DIR)/statusline-command.sh" ]; then \
+			echo "$(GREEN)✅ statusline-command.sh: 올바르게 설치됨$(NC)"; \
+			echo "   → $(CLAUDE_STATUSLINE) → $$STATUSLINE_TARGET"; \
+		else \
+			echo "$(YELLOW)⚠️  statusline-command.sh: 다른 경로를 가리킴$(NC)"; \
+			echo "   → $(CLAUDE_STATUSLINE) → $$STATUSLINE_TARGET"; \
+		fi; \
+	else \
+		echo "$(RED)❌ statusline-command.sh: 설치되지 않음$(NC)"; \
 	fi
 	@echo ""
 
