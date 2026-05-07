@@ -36,6 +36,14 @@ ansi_label() {
 
 # --- 1. 컨텍스트 사용률 ---
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty' 2>/dev/null)
+if [ -z "$used_pct" ]; then
+  # used_percentage가 null이면 current_usage.input_tokens / context_window_size로 계산
+  cur_input=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // empty' 2>/dev/null)
+  win_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty' 2>/dev/null)
+  if [ -n "$cur_input" ] && [ -n "$win_size" ] && [ "$win_size" -gt 0 ] 2>/dev/null; then
+    used_pct=$(echo "$cur_input $win_size" | awk '{printf "%.1f", $1/$2*100}')
+  fi
+fi
 if [ -n "$used_pct" ]; then
   ctx_int=$(echo "$used_pct" | awk '{printf "%.0f", $1}')
   ctx_emoji=$(status_emoji "$ctx_int")
@@ -54,7 +62,7 @@ if [ -n "$five_pct" ]; then
   sess_emoji=$(status_emoji "$sess_int")
   sess_label=$(ansi_label "세션" "$sess_int")
   if [ -n "$five_reset" ] && [ "$five_reset" != "null" ]; then
-    reset_time=$(date -r "$five_reset" "+%H:%M" 2>/dev/null || date -d "@${five_reset}" "+%H:%M" 2>/dev/null)
+    reset_time=$(TZ=Asia/Seoul date -r "$five_reset" "+%H:%M" 2>/dev/null || TZ=Asia/Seoul date -d "@${five_reset}" "+%H:%M" 2>/dev/null)
     if [ -n "$reset_time" ]; then
       sess_display="${sess_emoji} ${sess_label} ${sess_int}% (리셋 ${reset_time})"
     else
@@ -76,7 +84,7 @@ if [ -n "$week_pct" ]; then
   week_emoji=$(status_emoji "$week_int")
   week_label=$(ansi_label "주간" "$week_int")
   if [ -n "$week_reset" ] && [ "$week_reset" != "null" ]; then
-    reset_date=$(date -r "$week_reset" "+%-m/%-d" 2>/dev/null || date -d "@${week_reset}" "+%-m/%-d" 2>/dev/null)
+    reset_date=$(TZ=Asia/Seoul date -r "$week_reset" "+%-m/%-d" 2>/dev/null || TZ=Asia/Seoul date -d "@${week_reset}" "+%-m/%-d" 2>/dev/null)
     if [ -n "$reset_date" ]; then
       week_display="${week_emoji} ${week_label} ${week_int}% (리셋 ${reset_date})"
     else
