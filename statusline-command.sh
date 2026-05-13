@@ -109,21 +109,24 @@ else
   fi
 fi
 
-# --- 4. 현재 디렉토리 + git 브랜치 ---
+# --- 4. 호스트네임 + 현재 디렉토리 + git 브랜치 ---
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty' 2>/dev/null)
 if [ -z "$cwd" ]; then
   cwd=$(pwd)
 fi
 
+# 호스트네임 (short)
+host_name=$(hostname -s 2>/dev/null)
+
 # ~/로 치환
 home_dir="$HOME"
 short_cwd=$(echo "$cwd" | sed "s|^${home_dir}|~|")
 
-dir_display="$short_cwd"
+dir_display="${host_name}:${short_cwd}"
 if [ -d "$cwd" ]; then
   git_branch=$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null)
   if [ -n "$git_branch" ]; then
-    dir_display="${short_cwd}@${git_branch}"
+    dir_display="${host_name}:${short_cwd}@${git_branch}"
   fi
 fi
 
@@ -138,17 +141,17 @@ thinking=$(echo "$input" | jq -r '.thinking.enabled // false' 2>/dev/null)
 
 if [ -n "$effort" ]; then
   case "$effort" in
-    low)    think_label="💭low" ;;
-    medium) think_label="💭med" ;;
-    high)   think_label="💭high" ;;
-    xhigh)  think_label="💭xhigh" ;;
-    max)    think_label="💭max" ;;
-    *)      think_label="💭${effort}" ;;
+    low)    think_label="💭 low" ;;
+    medium) think_label="💭 med" ;;
+    high)   think_label="💭 high" ;;
+    xhigh)  think_label="💭 xhigh" ;;
+    max)    think_label="💭 max" ;;
+    *)      think_label="💭 ${effort}" ;;
   esac
 elif [ "$thinking" = "true" ]; then
-  think_label="💭on"
+  think_label="💭 on"
 else
-  think_label="💭off"
+  think_label="💭 off"
 fi
 
 model_display="${model_name} ${think_label}"
