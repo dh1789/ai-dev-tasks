@@ -14,6 +14,10 @@
     "deny": [],
     "ask": []
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline-command.sh"
+  },
   "enabledPlugins": {
     "ruby-lsp@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true
@@ -21,11 +25,7 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "commitTrailer": false,
-  "statusLine": {
-    "type": "command",
-    "command": "bash $HOME/.claude/statusline-command.sh"
-  },
   "theme": "dark-ansi",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "commitTrailer": false
 }
