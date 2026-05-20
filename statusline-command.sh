@@ -159,12 +159,12 @@ model_display="${model_name} ${think_label}"
 # --- 최종 출력 (한 줄) ---
 SEP=" │ "
 printf "%s%s%s%s%s%s%s%s%s" \
+  "$model_display" \
+  "$SEP" \
   "$ctx_display" \
   "$SEP" \
   "$sess_display" \
   "$SEP" \
   "$week_display" \
   "$SEP" \
-  "$dir_display" \
-  "$SEP" \
-  "$model_display"
+  "$dir_display"
